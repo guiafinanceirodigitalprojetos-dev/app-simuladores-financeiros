@@ -1,536 +1,310 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Guia Financeiro Digital - Simuladores</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia Financeiro Digital</title>
+    <style>
+        :root {
+            --primary: #0f172a;      /* Azul escuro executivo */
+            --primary-hover: #1e293b;
+            --accent: #2563eb;       /* Azul ação */
+            --bg: #f1f5f9;           /* Fundo neutro suave */
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --border: #cbd5e1;
+            --success: #15803d;     /* Verde de bom contraste */
+            --success-bg: #f0fdf4;
+            --ai-bg: #eff6ff;        /* Fundo do card IA */
+            --ai-border: #bfdbfe;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background-color: var(--bg); color: var(--text-main); padding: 16px; font-size: 16px; }
+
+        .app-container { max-width: 520px; margin: 0 auto; background: var(--card-bg); border-radius: 16px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); overflow: hidden; }
+
+        /* Header */
+        header { background: var(--primary); color: white; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
+        header h1 { font-size: 1.15rem; font-weight: 700; line-height: 1.2; }
+        header p { font-size: 0.75rem; opacity: 0.85; margin-top: 2px; }
+        .btn-menu { background: rgba(255,255,255,0.15); border: none; color: white; padding: 8px 14px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: 600; }
+
+        /* Conteúdo e Vistas */
+        .content { padding: 20px; }
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* Botão Voltar */
+        .btn-back { background: none; border: none; color: var(--accent); font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; margin-bottom: 16px; padding: 0; }
+
+        /* Seções e Cards do Menu */
+        .section-title { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 20px 0 10px 0; display: flex; align-items: center; gap: 8px; }
+        .card-menu { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s; }
+        .card-menu:hover { border-color: var(--accent); background: #fff; transform: translateY(-1px); }
+        .card-menu-info h3 { font-size: 0.95rem; font-weight: 600; color: var(--text-main); }
+        .card-menu-info p { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+
+        /* Formulários */
+        .form-group { margin-bottom: 14px; }
+        label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin-bottom: 6px; }
+        input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; outline: none; background: #fff; transition: border-color 0.2s; }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+        .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 8px; transition: background 0.2s; }
+        .btn-submit:hover { background: var(--primary-hover); }
+
+        /* Card de Resultado IA */
+        .ai-result-box { background: var(--ai-bg); border: 1px solid var(--ai-border); border-radius: 12px; padding: 16px; margin-top: 20px; }
+        .ai-result-header { font-size: 0.85rem; font-weight: 700; color: #1e40af; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .ai-result-body { font-size: 0.9rem; color: #1e3a8a; line-height: 1.5; }
+        .ai-highlight { color: var(--success); font-weight: 700; }
+
+        /* Teclado da Calculadora - Grid Corrigido */
+        .calc-display { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-size: 1.8rem; font-weight: 700; text-align: right; margin-bottom: 12px; color: var(--text-main); word-wrap: break-word; min-height: 64px; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .calc-btn { background: #f8fafc; border: 1px solid var(--border); padding: 16px 0; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; color: var(--text-main); transition: background 0.1s; }
+        .calc-btn:active { background: #e2e8f0; }
+        .calc-btn.op { background: #e2e8f0; color: var(--accent); }
+        .calc-btn.clear { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+        .calc-btn.equal { background: var(--accent); color: white; border-color: var(--accent); }
+        .span-2 { grid-column: span 2; }
+
+        /* Utilitários de Ícones SVG Inline */
+        .icon { width: 18px; height: 18px; fill: currentColor; display: inline-block; vertical-align: middle; }
+    </style>
 </head>
-<body class="bg-gray-100 text-gray-800 font-sans min-h-screen flex flex-col">
+<body>
 
-  <!-- Header -->
-  <header class="bg-blue-900 text-white p-4 text-center shadow-md cursor-pointer flex justify-between items-center max-w-md mx-auto w-full" onclick="mostrarMenu()">
-    <div>
-      <h1 class="text-xl font-bold text-left">Guia Financeiro Digital</h1>
-      <p class="text-xs text-blue-200 text-left">Suíte de Simuladores Rápidos & Diagnóstico IA</p>
+<div class="app-container">
+    <header>
+        <div>
+            <h1>Guia Financeiro Digital</h1>
+            <p>Suíte de Simuladores Rápidos & Diagnóstico IA</p>
+        </div>
+        <button class="btn-menu" onclick="showView('view-menu')">Menu</button>
+    </header>
+
+    <div class="content">
+
+        <!-- ==================== TELA: MENU PRINCIPAL ==================== -->
+        <div id="view-menu" class="view active">
+            
+            <div class="section-title">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 7h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2zm-8 4h2v2H7zm4 0h2v2h-2zm4 0h2v2h-2z"/></svg>
+                Calculadoras de Uso Geral
+            </div>
+            
+            <div class="card-menu" onclick="showView('view-calc-padrao')">
+                <div class="card-menu-info">
+                    <h3>Calculadora Padrão</h3>
+                    <p>Operações básicas para o dia a dia</p>
+                </div>
+                <span>→</span>
+            </div>
+
+            <div class="section-title">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
+                Finanças & Trabalho
+            </div>
+
+            <div class="card-menu" onclick="showView('view-freelancer')">
+                <div class="card-menu-info">
+                    <h3>Calculadora Valor/Hora (Freelancer)</h3>
+                    <p>Quanto cobrar para atingir sua meta de salário real</p>
+                </div>
+                <span>→</span>
+            </div>
+
+            <div class="card-menu" onclick="showView('view-combustivel')">
+                <div class="card-menu-info">
+                    <h3>Álcool vs Gasolina</h3>
+                    <p>Comparativo imediato de viabilidade no posto</p>
+                </div>
+                <span>→</span>
+            </div>
+
+        </div>
+
+        <!-- ==================== TELA: CALCULADORA PADRÃO ==================== -->
+        <div id="view-calc-padrao" class="view">
+            <button class="btn-back" onclick="showView('view-menu')">← Voltar ao Menu</button>
+            <h2 style="font-size: 1.1rem; margin-bottom: 12px;">Calculadora Padrão</h2>
+            
+            <div class="calc-display" id="calc-display">0</div>
+            
+            <!-- Grid 4x5 Perfeitamente Alinhado -->
+            <div class="calc-grid">
+                <button class="calc-btn clear" onclick="calcClear()">C</button>
+                <button class="calc-btn op" onclick="calcInput('/')">÷</button>
+                <button class="calc-btn op" onclick="calcInput('*')">×</button>
+                <button class="calc-btn op" onclick="calcInput('-')">-</button>
+
+                <button class="calc-btn" onclick="calcInput('7')">7</button>
+                <button class="calc-btn" onclick="calcInput('8')">8</button>
+                <button class="calc-btn" onclick="calcInput('9')">9</button>
+                <button class="calc-btn op" onclick="calcInput('+')">+</button>
+
+                <button class="calc-btn" onclick="calcInput('4')">4</button>
+                <button class="calc-btn" onclick="calcInput('5')">5</button>
+                <button class="calc-btn" onclick="calcInput('6')">6</button>
+                <button class="calc-btn equal span-2" style="grid-row: span 2; height: 100%;" onclick="calcEqual()">=</button>
+
+                <button class="calc-btn" onclick="calcInput('1')">1</button>
+                <button class="calc-btn" onclick="calcInput('2')">2</button>
+                <button class="calc-btn" onclick="calcInput('3')">3</button>
+
+                <button class="calc-btn span-2" onclick="calcInput('0')">0</button>
+                <button class="calc-btn" onclick="calcInput('.')">,</button>
+            </div>
+        </div>
+
+        <!-- ==================== TELA: FREELANCER (VALOR HORA) ==================== -->
+        <div id="view-freelancer" class="view">
+            <button class="btn-back" onclick="showView('view-menu')">← Voltar ao Menu</button>
+            <h2 style="font-size: 1.1rem; margin-bottom: 4px;">Calculadora de Valor/Hora</h2>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">Descubra quanto cobrar para atingir sua meta líquida.</p>
+
+            <div class="form-group">
+                <label>Quanto quer ganhar líquido/mês (R$)</label>
+                <input type="text" id="free-meta" class="money-mask" placeholder="R$ 0,00" value="R$ 5.000,00">
+            </div>
+
+            <div class="form-group">
+                <label>Custos Fixos Mensais (R$)</label>
+                <input type="text" id="free-custos" class="money-mask" placeholder="R$ 0,00" value="R$ 650,00">
+            </div>
+
+            <div class="form-group">
+                <label>Horas vendáveis por dia</label>
+                <input type="number" id="free-horas" value="7">
+            </div>
+
+            <button class="btn-submit" onclick="calcularHora()">Calcular Minha Hora</button>
+
+            <div id="free-resultado" class="ai-result-box" style="display: none;">
+                <div class="ai-result-header">
+                    🤖 Diagnóstico do Consultor IA
+                </div>
+                <div class="ai-result-body" id="free-resultado-texto"></div>
+            </div>
+        </div>
+
+        <!-- ==================== TELA: ÁLCOOL VS GASOLINA ==================== -->
+        <div id="view-combustivel" class="view">
+            <button class="btn-back" onclick="showView('view-menu')">← Voltar ao Menu</button>
+            <h2 style="font-size: 1.1rem; margin-bottom: 16px;">Álcool ou Gasolina?</h2>
+
+            <div class="form-group">
+                <label>Preço do Álcool (R$)</label>
+                <input type="text" id="comb-alcool" class="money-mask" value="R$ 4,12">
+            </div>
+
+            <div class="form-group">
+                <label>Preço da Gasolina (R$)</label>
+                <input type="text" id="comb-gasolina" class="money-mask" value="R$ 5,68">
+            </div>
+
+            <button class="btn-submit" onclick="calcularCombustivel()">Comparar</button>
+
+            <div id="comb-resultado" class="ai-result-box" style="display: none;">
+                <div class="ai-result-header">
+                    🤖 Recomendação do Posto
+                </div>
+                <div class="ai-result-body" id="comb-resultado-texto"></div>
+            </div>
+        </div>
+
     </div>
-    <span class="text-xs bg-blue-800 px-2 py-1 rounded text-blue-100 font-semibold">Menu</span>
-  </header>
+</div>
 
-  <!-- Conteúdo Principal -->
-  <main class="flex-1 p-4 max-w-md mx-auto w-full">
+<script>
+    // === Navegação entre Telas ===
+    function showView(viewId) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(viewId).classList.add('active');
+    }
 
-    <!-- Menu Principal Categoriado -->
-    <div id="menuPrincipal" class="space-y-4">
+    // === Lógica da Calculadora Padrão (Sem Bugs de Grid) ===
+    let calcExpression = '';
+    function calcInput(val) {
+        if(calcExpression === '0' && val !== '.') calcExpression = '';
+        calcExpression += val;
+        document.getElementById('calc-display').innerText = calcExpression || '0';
+    }
+    function calcClear() {
+        calcExpression = '';
+        document.getElementById('calc-display').innerText = '0';
+    }
+    function calcEqual() {
+        try {
+            calcExpression = eval(calcExpression).toString();
+            document.getElementById('calc-display').innerText = calcExpression;
+        } catch {
+            document.getElementById('calc-display').innerText = 'Erro';
+            calcExpression = '';
+        }
+    }
 
-      <!-- Categoria 1: Ferramentas Gerais -->
-      <div>
-        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">🧮 Calculadoras de Uso Geral</h3>
-        <div class="grid grid-cols-2 gap-2">
-          <button onclick="abrirTela('telaCalcPadrao')" class="bg-white p-3 rounded-xl shadow-sm border border-gray-200 text-left hover:bg-blue-50 transition">
-            <p class="font-bold text-blue-900 text-sm">🔢 Padrão</p>
-            <p class="text-[10px] text-gray-500">Operações básicas</p>
-          </button>
-          <button onclick="abrirTela('telaCalcCientifica')" class="bg-white p-3 rounded-xl shadow-sm border border-gray-200 text-left hover:bg-blue-50 transition">
-            <p class="font-bold text-blue-900 text-sm">🧪 Científica</p>
-            <p class="text-[10px] text-gray-500">Seno, cos, potências</p>
-          </button>
-        </div>
-      </div>
+    // === Máscara Simples de Moeda (R$) ===
+    document.querySelectorAll('.money-mask').forEach(input => {
+        input.addEventListener('input', (e) => {
+            let value = e.target.value.replace(/\D/g, '');
+            value = (value / 100).toFixed(2) + '';
+            value = value.replace(".", ",");
+            value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+            e.target.value = value ? "R$ " + value : "";
+        });
+    });
 
-      <!-- Categoria 2: Simuladores Financeiros e Trabalhistas -->
-      <div>
-        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">💰 Finanças & Trabalho</h3>
-        <div class="space-y-2">
-          <button onclick="abrirTela('telaCltPj')" class="w-full bg-white p-3.5 rounded-xl shadow-sm border border-gray-200 text-left hover:bg-blue-50 transition flex justify-between items-center">
-            <div>
-              <p class="font-bold text-blue-900 text-sm">💼 Calculadora CLT vs PJ</p>
-              <p class="text-xs text-gray-500">Compare renda líquida real e benefícios</p>
-            </div>
-            <span class="text-gray-400">→</span>
-          </button>
+    function parseMoney(val) {
+        if(!val) return 0;
+        return parseFloat(val.replace("R$", "").replace(/\./g, "").replace(",", ".").trim()) || 0;
+    }
 
-          <button onclick="abrirTela('telaFinanciamento')" class="w-full bg-white p-3.5 rounded-xl shadow-sm border border-gray-200 text-left hover:bg-blue-50 transition flex justify-between items-center">
-            <div>
-              <p class="font-bold text-blue-900 text-sm">🏠 Simulador de Financiamento</p>
-              <p class="text-xs text-gray-500">Tabela SAC vs PRICE e juros totais</p>
-            </div>
-            <span class="text-gray-400">→</span>
-          </button>
-
-          <button onclick="abrirTela('telaJuros')" class="w-full bg-white p-3.5 rounded-xl shadow-sm border border-gray-200 text-left hover:bg-blue-50 transition flex justify-between items-center">
-            <div>
-              <p class="font-bold text-blue-900 text-sm">📈 Juros Compostos</p>
-
-              <p class="text-xs text-gray-500">Simule investimentos e patrimônio</p>
-            </div>
-            <span class="text-gray-400">→</span>
-          </button>
-
-          <button onclick="abrirTela('telaCombustivel')" class="w-full bg-white p-3.5 rounded-xl shadow-sm border border-gray-200 text-left hover:bg-blue-50 transition flex justify-between items-center">
-            <div>
-              <p class="font-bold text-blue-900 text-sm">⛽ Comparador de Combustível</p>
-              <p class="text-xs text-gray-500">Álcool vs Gasolina no posto</p>
-            </div>
-            <span class="text-gray-400">→</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Categoria 3: Ferramentas por Profissão (Nicho) -->
-      <div>
-        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">👨‍💻 Calculadoras por Profissão</h3>
-        <div class="space-y-2">
-          <button onclick="abrirTela('telaUber')" class="w-full bg-white p-3.5 rounded-xl shadow-sm border border-gray-200 text-left hover:bg-blue-50 transition flex justify-between items-center">
-            <div>
-              <p class="font-bold text-blue-900 text-sm">🚗 Motorista de App / Entregador</p>
-              <p class="text-xs text-gray-500">Lucro líquido real por KM e desgaste do veículo</p>
-            </div>
-            <span class="text-gray-400">→</span>
-          </button>
-
-          <button onclick="abrirTela('telaFreela')" class="w-full bg-white p-3.5 rounded-xl shadow-sm border border-gray-200 text-left hover:bg-blue-50 transition flex justify-between items-center">
-            <div>
-              <p class="font-bold text-blue-900 text-sm">💻 Freelancer / Autônomo</p>
-              <p class="text-xs text-gray-500">Quanto cobrar por hora ou por projeto</p>
-            </div>
-            <span class="text-gray-400">→</span>
-          </button>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- 1. Calculadora Padrão -->
-    <div id="telaCalcPadrao" class="hidden bg-white p-5 rounded-xl shadow-md border border-gray-200">
-      <button onclick="mostrarMenu()" class="text-xs font-bold text-blue-800 mb-3 block">← Voltar ao Menu</button>
-      <h2 class="text-lg font-bold text-blue-900 mb-2">🔢 Calculadora Padrão</h2>
-      <input type="text" id="displayPadrao" readonly class="w-full p-3 bg-gray-100 text-right text-2xl font-mono rounded-lg border mb-3" value="0">
-      <div class="grid grid-cols-4 gap-2">
-        <button onclick="limparCalc('displayPadrao')" class="bg-red-100 text-red-700 font-bold p-3 rounded-lg">C</button>
-        <button onclick="addCalc('displayPadrao', '/')" class="bg-gray-200 font-bold p-3 rounded-lg">÷</button>
-        <button onclick="addCalc('displayPadrao', '*')" class="bg-gray-200 font-bold p-3 rounded-lg">×</button>
-        <button onclick="addCalc('displayPadrao', '-')" class="bg-gray-200 font-bold p-3 rounded-lg">-</button>
+    // === Cálculo Freelancer ===
+    function calcularHora() {
+        const meta = parseMoney(document.getElementById('free-meta').value);
+        const custos = parseMoney(document.getElementById('free-custos').value);
+        const horasDia = parseFloat(document.getElementById('free-horas').value) || 1;
         
-        <button onclick="addCalc('displayPadrao', '7')" class="bg-gray-50 font-bold p-3 rounded-lg">7</button>
-        <button onclick="addCalc('displayPadrao', '8')" class="bg-gray-50 font-bold p-3 rounded-lg">8</button>
-        <button onclick="addCalc('displayPadrao', '9')" class="bg-gray-50 font-bold p-3 rounded-lg">9</button>
-        <button onclick="addCalc('displayPadrao', '+')" class="bg-gray-200 font-bold p-3 rounded-lg" row-span-2">+</button>
-        
-        <button onclick="addCalc('displayPadrao', '4')" class="bg-gray-50 font-bold p-3 rounded-lg">4</button>
-        <button onclick="addCalc('displayPadrao', '5')" class="bg-gray-50 font-bold p-3 rounded-lg">5</button>
-        <button onclick="addCalc('displayPadrao', '6')" class="bg-gray-50 font-bold p-3 rounded-lg">6</button>
+        // Considera 20 dias úteis/mês
+        const totalHorasMes = horasDia * 20;
+        const faturamentoNecessario = meta + custos;
+        const valorHora = faturamentoNecessario / totalHorasMes;
+        const valorComMargem = valorHora * 1.20;
 
-        <button onclick="addCalc('displayPadrao', '1')" class="bg-gray-50 font-bold p-3 rounded-lg">1</button>
-        <button onclick="addCalc('displayPadrao', '2')" class="bg-gray-50 font-bold p-3 rounded-lg">2</button>
-        <button onclick="addCalc('displayPadrao', '3')" class="bg-gray-50 font-bold p-3 rounded-lg">3</button>
-        <button onclick="evalCalc('displayPadrao')" class="bg-blue-900 text-white font-bold p-3 rounded-lg col-span-1 row-span-2">=</button>
-
-        <button onclick="addCalc('displayPadrao', '0')" class="bg-gray-50 font-bold p-3 rounded-lg col-span-2">0</button>
-        <button onclick="addCalc('displayPadrao', '.')" class="bg-gray-50 font-bold p-3 rounded-lg">.</button>
-      </div>
-    </div>
-
-    <!-- 2. Calculadora Científica -->
-    <div id="telaCalcCientifica" class="hidden bg-white p-5 rounded-xl shadow-md border border-gray-200">
-      <button onclick="mostrarMenu()" class="text-xs font-bold text-blue-800 mb-3 block">← Voltar ao Menu</button>
-      <h2 class="text-lg font-bold text-blue-900 mb-2">🧪 Calculadora Científica</h2>
-      <input type="text" id="displayCientifica" readonly class="w-full p-3 bg-gray-100 text-right text-xl font-mono rounded-lg border mb-3" value="0">
-      
-      <div class="grid grid-cols-4 gap-1.5 text-xs">
-        <button onclick="calcMath('sin')" class="bg-blue-100 font-bold p-2.5 rounded">sin</button>
-        <button onclick="calcMath('cos')" class="bg-blue-100 font-bold p-2.5 rounded">cos</button>
-        <button onclick="calcMath('tan')" class="bg-blue-100 font-bold p-2.5 rounded">tan</button>
-        <button onclick="calcMath('sqrt')" class="bg-blue-100 font-bold p-2.5 rounded">√</button>
-
-        <button onclick="calcMath('log')" class="bg-blue-100 font-bold p-2.5 rounded">log</button>
-        <button onclick="addCalc('displayCientifica', '**')" class="bg-blue-100 font-bold p-2.5 rounded">x^y</button>
-        <button onclick="addCalc('displayCientifica', '(')" class="bg-blue-100 font-bold p-2.5 rounded">(</button>
-        <button onclick="addCalc('displayCientifica', ')')" class="bg-blue-100 font-bold p-2.5 rounded">)</button>
-
-        <button onclick="limparCalc('displayCientifica')" class="bg-red-100 text-red-700 font-bold p-2.5 rounded">C</button>
-        <button onclick="addCalc('displayCientifica', '/')" class="bg-gray-200 font-bold p-2.5 rounded">÷</button>
-        <button onclick="addCalc('displayCientifica', '*')" class="bg-gray-200 font-bold p-2.5 rounded">×</button>
-        <button onclick="addCalc('displayCientifica', '-')" class="bg-gray-200 font-bold p-2.5 rounded">-</button>
-
-        <button onclick="addCalc('displayCientifica', '7')" class="bg-gray-50 font-bold p-2.5 rounded">7</button>
-        <button onclick="addCalc('displayCientifica', '8')" class="bg-gray-50 font-bold p-2.5 rounded">8</button>
-        <button onclick="addCalc('displayCientifica', '9')" class="bg-gray-50 font-bold p-2.5 rounded">9</button>
-        <button onclick="addCalc('displayCientifica', '+')" class="bg-gray-200 font-bold p-2.5 rounded">+</button>
-
-        <button onclick="addCalc('displayCientifica', '4')" class="bg-gray-50 font-bold p-2.5 rounded">4</button>
-        <button onclick="addCalc('displayCientifica', '5')" class="bg-gray-50 font-bold p-2.5 rounded">5</button>
-        <button onclick="addCalc('displayCientifica', '6')" class="bg-gray-50 font-bold p-2.5 rounded">6</button>
-        <button onclick="evalCalc('displayCientifica')" class="bg-blue-900 text-white font-bold p-2.5 rounded row-span-2">=</button>
-
-        <button onclick="addCalc('displayCientifica', '1')" class="bg-gray-50 font-bold p-2.5 rounded">1</button>
-        <button onclick="addCalc('displayCientifica', '2')" class="bg-gray-50 font-bold p-2.5 rounded">2</button>
-        <button onclick="addCalc('displayCientifica', '3')" class="bg-gray-50 font-bold p-2.5 rounded">3</button>
-
-        <button onclick="addCalc('displayCientifica', '0')" class="bg-gray-50 font-bold p-2.5 rounded col-span-2">0</button>
-        <button onclick="addCalc('displayCientifica', '.')" class="bg-gray-50 font-bold p-2.5 rounded">.</button>
-      </div>
-    </div>
-
-    <!-- 3. Motorista de App (Uber/99) -->
-    <div id="telaUber" class="hidden bg-white p-5 rounded-xl shadow-md border border-gray-200">
-      <button onclick="mostrarMenu()" class="text-xs font-bold text-blue-800 mb-3 block">← Voltar ao Menu</button>
-      <h2 class="text-lg font-bold text-blue-900 mb-1">🚗 Lucro Real do Motorista</h2>
-      <p class="text-xs text-gray-500 mb-4">Descubra seu lucro líquido descontando combustível e desgaste do carro.</p>
-
-      <div class="space-y-3 text-sm">
-        <div>
-          <label class="block font-medium text-gray-700 mb-1">Faturamento Bruto no Dia (R$)</label>
-          <input type="number" id="uberFat" placeholder="Ex: 300" class="w-full p-2 border rounded-lg">
-        </div>
-        <div>
-          <label class="block font-medium text-gray-700 mb-1">KM Rodados no Dia</label>
-          <input type="number" id="uberKm" placeholder="Ex: 180" class="w-full p-2 border rounded-lg">
-        </div>
-        <div>
-          <label class="block font-medium text-gray-700 mb-1">Gasto com Combustível no Dia (R$)</label>
-          <input type="number" id="uberComb" placeholder="Ex: 90" class="w-full p-2 border rounded-lg">
-        </div>
-        <div>
-          <label class="block font-medium text-gray-700 mb-1">Custo Manutenção/Desgaste por KM (R$)</label>
-          <span class="text-[10px] text-gray-400 block mb-1">Média sugerida: R$ 0,20 a R$ 0,35 / km (pneus, óleo, IPVA)</span>
-          <input type="number" step="0.05" id="uberDesgaste" value="0.25" class="w-full p-2 border rounded-lg">
-        </div>
-        <button onclick="calcularUber()" class="w-full bg-blue-900 text-white font-bold py-2.5 rounded-lg">Calcular Lucro Líquido</button>
-      </div>
-
-      <div id="resUberBox" class="hidden mt-4 p-4 rounded-lg border text-sm space-y-2">
-        <div class="flex justify-between"><span>Lucro Líquido Real:</span><span id="resUberLiquido" class="font-bold text-green-700">R$ 0,00</span></div>
-        <div class="flex justify-between text-xs"><span>Ganho Líquido por KM:</span><span id="resUberPerKm" class="font-semibold">R$ 0,00 / km</span></div>
-
-        <!-- Módulo de Diagnóstico IA -->
-        <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-          <p class="text-xs font-bold text-blue-900 mb-1">🤖 Diagnóstico do Consultor IA:</p>
-          <p id="iaUberParecer" class="text-xs text-gray-700 leading-relaxed"></p>
-          <button class="mt-2 w-full bg-green-600 text-white text-xs font-bold py-1.5 rounded hover:bg-green-700">📲 Receber Análise Completa em PDF no WhatsApp</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- 4. Freelancer / Autônomo -->
-    <div id="telaFreela" class="hidden bg-white p-5 rounded-xl shadow-md border border-gray-200">
-      <button onclick="mostrarMenu()" class="text-xs font-bold text-blue-800 mb-3 block">← Voltar ao Menu</button>
-      <h2 class="text-lg font-bold text-blue-900 mb-1">💻 Calculadora de Valor/Hora</h2>
-      <p class="text-xs text-gray-500 mb-4">Descubra quanto cobrar para atingir sua meta de salário.</p>
-
-      <div class="space-y-3 text-sm">
-        <div>
-          <label class="block font-medium text-gray-700 mb-1">Quanto quer ganhar líquido/mês (R$)</label>
-          <input type="number" id="freelaMeta" placeholder="Ex: 6000" class="w-full p-2 border rounded-lg">
-        </div>
-        <div>
-          <label class="block font-medium text-gray-700 mb-1">Custos Fixos Mensais (R$)</label>
-          <span class="text-[10px] text-gray-400 block mb-1">Internet, MEI, softwares, luz, etc.</span>
-          <input type="number" id="freelaCustos" placeholder="Ex: 500" class="w-full p-2 border rounded-lg">
-        </div>
-        <div>
-          <label class="block font-medium text-gray-700 mb-1">Horas vendáveis por dia</label>
-          <input type="number" id="freelaHorasDia" placeholder="Ex: 6" class="w-full p-2 border rounded-lg">
-        </div>
-        <button onclick="calcularFreela()" class="w-full bg-blue-900 text-white font-bold py-2.5 rounded-lg">Calcular Minha Hora</button>
-      </div>
-
-      <div id="resFreelaBox" class="hidden mt-4 p-4 rounded-lg border text-sm space-y-2">
-        <div class="flex justify-between"><span>Mínimo a cobrar por HORA:</span><span id="resFreelaHora" class="font-bold text-blue-900">R$ 0,00</span></div>
-
-        <!-- Módulo de Diagnóstico IA -->
-        <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-          <p class="text-xs font-bold text-blue-900 mb-1">🤖 Diagnóstico do Consultor IA:</p>
-          <p id="iaFreelaParecer" class="text-xs text-gray-700 leading-relaxed"></p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Simuladores Anteriores (Mantidos) -->
-    <!-- CLT vs PJ -->
-    <div id="telaCltPj" class="hidden bg-white p-5 rounded-xl shadow-md border border-gray-200">
-      <button onclick="mostrarMenu()" class="text-xs font-bold text-blue-800 mb-3 block">← Voltar ao Menu</button>
-      <h2 class="text-lg font-bold text-blue-900 mb-1">💼 CLT vs PJ</h2>
-      <p class="text-xs text-gray-500 mb-4">Compare a renda líquida aproximada de cada opção.</p>
-
-      <div class="space-y-3 text-sm">
-        <div><label class="block font-medium text-gray-700 mb-1">Salário Bruto CLT (R$)</label><input type="number" id="cltSalario" placeholder="Ex: 5000" class="w-full p-2 border rounded-lg"></div>
-        <div><label class="block font-medium text-gray-700 mb-1">Benefícios CLT / Mês (R$)</label><input type="number" id="cltBeneficios" placeholder="Ex: 1000" class="w-full p-2 border rounded-lg"></div>
-        <div><label class="block font-medium text-gray-700 mb-1">Faturamento PJ Mensal (R$)</label><input type="number" id="pjFaturamento" placeholder="Ex: 8000" class="w-full p-2 border rounded-lg"></div>
-        <button onclick="calcularCltPj()" class="w-full bg-blue-900 text-white font-bold py-2.5 rounded-lg">Calcular</button>
-      </div>
-
-      <div id="resCltPjBox" class="hidden mt-4 p-4 rounded-lg border text-sm space-y-2">
-        <div class="flex justify-between"><span>Líquido CLT (+Benefícios):</span><span id="resCltVal" class="font-bold">R$ 0,00</span></div>
-        <div class="flex justify-between"><span>Líquido PJ (-6% Simples):</span><span id="resPjVal" class="font-bold">R$ 0,00</span></div>
-        <div id="veredictoCltPj" class="mt-2 p-2 text-center rounded font-bold text-xs"></div>
-        
-        <!-- IA Parecer CLT vs PJ -->
-        <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-          <p class="text-xs font-bold text-blue-900 mb-1">🤖 Parecer do Consultor IA:</p>
-          <p id="iaCltPjParecer" class="text-xs text-gray-700 leading-relaxed"></p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Financiamento -->
-    <div id="telaFinanciamento" class="hidden bg-white p-5 rounded-xl shadow-md border border-gray-200">
-      <button onclick="mostrarMenu()" class="text-xs font-bold text-blue-800 mb-3 block">← Voltar ao Menu</button>
-      <h2 class="text-lg font-bold text-blue-900 mb-1">🏠 Financiamento (SAC vs PRICE)</h2>
-      <div class="space-y-3 text-sm mt-3">
-        <div><label class="block font-medium text-gray-700 mb-1">Valor a Financiar (R$)</label><input type="number" id="finValor" placeholder="Ex: 200000" class="w-full p-2 border rounded-lg"></div>
-        <div><label class="block font-medium text-gray-700 mb-1">Taxa de Juros Anual (%)</label><input type="number" step="0.1" id="finTaxa" placeholder="Ex: 10.5" class="w-full p-2 border rounded-lg"></div>
-        <div><label class="block font-medium text-gray-700 mb-1">Prazo (Anos)</label><input type="number" id="finAnos" placeholder="Ex: 20" class="w-full p-2 border rounded-lg"></div>
-        <button onclick="calcularFinanciamento()" class="w-full bg-blue-900 text-white font-bold py-2.5 rounded-lg">Simular Financiamento</button>
-      </div>
-
-      <div id="resFinBox" class="hidden mt-4 p-4 rounded-lg border text-sm space-y-3">
-        <div class="border-b pb-2">
-          <p class="font-bold text-blue-900">📌 Tabela SAC:</p>
-          <div class="flex justify-between text-xs mt-1"><span>Primeira Parcela:</span><span id="sacPrimeira" class="font-bold">R$ 0,00</span></div>
-          <div class="flex justify-between text-xs"><span class="text-gray-500">Total de Juros:</span><span id="sacJuros" class="font-semibold text-gray-700">R$ 0,00</span></div>
-        </div>
-        <div>
-          <p class="font-bold text-blue-900">📌 Tabela PRICE:</p>
-          <div class="flex justify-between text-xs mt-1"><span>Parcela Mensal:</span><span id="priceParcela" class="font-bold">R$ 0,00</span></div>
-          <div class="flex justify-between text-xs"><span class="text-gray-500">Total de Juros:</span><span id="priceJuros" class="font-semibold text-gray-700">R$ 0,00</span></div>
-        </div>
-
-        <!-- IA Parecer Financiamento -->
-        <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-          <p class="text-xs font-bold text-blue-900 mb-1">🤖 Parecer do Consultor IA:</p>
-          <p id="iaFinParecer" class="text-xs text-gray-700 leading-relaxed"></p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Juros Compostos -->
-    <div id="telaJuros" class="hidden bg-white p-5 rounded-xl shadow-md border border-gray-200">
-      <button onclick="mostrarMenu()" class="text-xs font-bold text-blue-800 mb-3 block">← Voltar ao Menu</button>
-      <h2 class="text-lg font-bold text-blue-900 mb-1">📈 Juros Compostos</h2>
-      <div class="space-y-3 text-sm mt-3">
-        <div><label class="block font-medium text-gray-700 mb-1">Aporte Inicial (R$)</label><input type="number" id="jurosInicial" placeholder="Ex: 1000" class="w-full p-2 border rounded-lg"></div>
-        <div><label class="block font-medium text-gray-700 mb-1">Aporte Mensal (R$)</label><input type="number" id="jurosMensal" placeholder="Ex: 300" class="w-full p-2 border rounded-lg"></div>
-        <div><label class="block font-medium text-gray-700 mb-1">Taxa Anual (%)</label><input type="number" step="0.1" id="jurosTaxa" placeholder="Ex: 10" class="w-full p-2 border rounded-lg"></div>
-        <div><label class="block font-medium text-gray-700 mb-1">Anos de Investimento</label><input type="number" id="jurosAnos" placeholder="Ex: 5" class="w-full p-2 border rounded-lg"></div>
-        <button onclick="calcularJuros()" class="w-full bg-blue-900 text-white font-bold py-2.5 rounded-lg">Simular</button>
-      </div>
-      <div id="resJurosBox" class="hidden mt-4 p-4 rounded-lg border text-sm space-y-2">
-        <div class="flex justify-between"><span>Total Investido:</span><span id="resInvestido" class="font-bold">R$ 0,00</span></div>
-        <div class="flex justify-between"><span>Total em Juros:</span><span id="resJurosGanhos" class="font-bold text-green-600">R$ 0,00</span></div>
-        <div class="flex justify-between border-t pt-1"><span class="font-bold">Montante Final:</span><span id="resMontante" class="font-bold text-blue-900">R$ 0,00</span></div>
-      </div>
-    </div>
-
-    <!-- Combustível -->
-    <div id="telaCombustivel" class="hidden bg-white p-5 rounded-xl shadow-md border border-gray-200">
-      <button onclick="mostrarMenu()" class="text-xs font-bold text-blue-800 mb-3 block">← Voltar ao Menu</button>
-      <h2 class="text-lg font-bold text-blue-900 mb-1">⛽ Álcool ou Gasolina?</h2>
-      <div class="space-y-3 text-sm mt-3">
-        <div><label class="block font-medium text-gray-700 mb-1">Preço do Álcool (R$)</label><input type="number" step="0.01" id="precoAlcool" placeholder="Ex: 3.89" class="w-full p-2 border rounded-lg"></div>
-        <div><label class="block font-medium text-gray-700 mb-1">Preço da Gasolina (R$)</label><input type="number" step="0.01" id="precoGasolina" placeholder="Ex: 5.59" class="w-full p-2 border rounded-lg"></div>
-        <button onclick="calcularCombustivel()" class="w-full bg-blue-900 text-white font-bold py-2.5 rounded-lg">Comparar</button>
-      </div>
-      <div id="resCombBox" class="hidden mt-4 p-3 text-center rounded-lg font-bold text-xs"></div>
-    </div>
-
-  </main>
-
-  <!-- Banner AdMob Simulado -->
-  <footer class="bg-gray-300 text-gray-600 text-xs text-center p-3 border-t border-gray-400">
-    [ Espaço do Anúncio AdMob ]
-  </footer>
-
-  <script>
-    function fecharTodasTelas() {
-      const telas = ['menuPrincipal', 'telaCalcPadrao', 'telaCalcCientifica', 'telaUber', 'telaFreela', 'telaCltPj', 'telaFinanciamento', 'telaJuros', 'telaCombustivel'];
-      telas.forEach(id => document.getElementById(id).classList.add('hidden'));
+        document.getElementById('free-resultado').style.display = 'block';
+        document.getElementById('free-resultado-texto').innerHTML = `
+            Mínimo a cobrar por HORA: <span class="ai-highlight">R$ ${valorHora.toFixed(2).replace('.', ',')}</span><br><br>
+            💡 <b>Regra dos 20%:</b> Para não passar sufoco em períodos sem projetos, cobrir 13º e férias, o recomendado é cobrar <b>R$ ${valorComMargem.toFixed(2).replace('.', ',')}/hora</b>.
+        `;
     }
 
-    function mostrarMenu() {
-      fecharTodasTelas();
-      document.getElementById('menuPrincipal').classList.remove('hidden');
-    }
-
-    function abrirTela(idTela) {
-      fecharTodasTelas();
-      document.getElementById(idTela).classList.remove('hidden');
-    }
-
-    // Calculadoras Padrao e Cientifica
-    function addCalc(idDisplay, val) {
-      const d = document.getElementById(idDisplay);
-      if(d.value === '0' && val !== '.') d.value = '';
-      d.value += val;
-    }
-    function limparCalc(idDisplay) {
-      document.getElementById(idDisplay).value = '0';
-    }
-    function evalCalc(idDisplay) {
-      const d = document.getElementById(idDisplay);
-      try { d.value = eval(d.value); } catch(e) { d.value = 'Erro'; }
-    }
-    function calcMath(func) {
-      const d = document.getElementById('displayCientifica');
-      let val = parseFloat(d.value) || 0;
-      if(func === 'sin') d.value = Math.sin(val * Math.PI / 180).toFixed(4);
-      if(func === 'cos') d.value = Math.cos(val * Math.PI / 180).toFixed(4);
-      if(func === 'tan') d.value = Math.tan(val * Math.PI / 180).toFixed(4);
-      if(func === 'sqrt') d.value = Math.sqrt(val).toFixed(4);
-      if(func === 'log') d.value = Math.log10(val).toFixed(4);
-    }
-
-    // Uber / Entregadores
-    function calcularUber() {
-      const fat = parseFloat(document.getElementById('uberFat').value) || 0;
-      const km = parseFloat(document.getElementById('uberKm').value) || 0;
-      const comb = parseFloat(document.getElementById('uberComb').value) || 0;
-      const desgaste = parseFloat(document.getElementById('uberDesgaste').value) || 0;
-
-      if(fat <= 0 || km <= 0) return alert("Preencha faturamento e KM.");
-
-      const custoDesgasteTotal = km * desgaste;
-      const liquido = fat - comb - custoDesgasteTotal;
-      const perKm = liquido / km;
-
-      document.getElementById('resUberLiquido').innerText = 'R$ ' + liquido.toFixed(2);
-      document.getElementById('resUberPerKm').innerText = 'R$ ' + perKm.toFixed(2) + ' / km';
-
-      // Parecer IA
-      const ia = document.getElementById('iaUberParecer');
-      if (perKm < 0.80) {
-        ia.innerText = "Atenção: Seu ganho líquido por KM está baixo (R$ " + perKm.toFixed(2) + "). O desgaste e combustível estão consumindo mais de " + (((comb + custoDesgasteTotal)/fat)*100).toFixed(0) + "% do seu faturamento.";
-      } else {
-        ia.innerText = "Ótimo resultado! Seu lucro líquido real no dia foi de R$ " + liquido.toFixed(2) + " (R$ " + perKm.toFixed(2) + " por KM rodado limpo).";
-      }
-
-      document.getElementById('resUberBox').classList.remove('hidden');
-    }
-
-    // Freelancer
-    function calcularFreela() {
-      const meta = parseFloat(document.getElementById('freelaMeta').value) || 0;
-      const custos = parseFloat(document.getElementById('freelaCustos').value) || 0;
-      const hDia = parseFloat(document.getElementById('freelaHorasDia').value) || 0;
-
-      if(meta <= 0 || hDia <= 0) return alert("Preencha a meta e horas vendáveis.");
-
-      const totalNecessario = meta + custos;
-      const horasMes = hDia * 20; // 20 dias uteis
-      const valorHora = totalNecessario / horasMes;
-
-      document.getElementById('resFreelaHora').innerText = 'R$ ' + valorHora.toFixed(2);
-
-      document.getElementById('iaFreelaParecer').innerText = "Para colocar R$ " + meta.toFixed(2) + " limpos no bolso no fim do mês, cobre no mínimo R$ " + valorHora.toFixed(2) + "/hora. Dica: adicione 20% de margem para cobrir férias e períodos sem projetos.";
-      document.getElementById('resFreelaBox').classList.remove('hidden');
-    }
-
-    // CLT vs PJ
-    function calcularCltPj() {
-      const clt = parseFloat(document.getElementById('cltSalario').value) || 0;
-      const beneficios = parseFloat(document.getElementById('cltBeneficios').value) || 0;
-      const pj = parseFloat(document.getElementById('pjFaturamento').value) || 0;
-
-      const cltLiquido = (clt * 0.85) + beneficios;
-      const pjLiquido = pj * 0.94;
-
-      document.getElementById('resCltVal').innerText = 'R$ ' + cltLiquido.toFixed(2);
-      document.getElementById('resPjVal').innerText = 'R$ ' + pjLiquido.toFixed(2);
-
-      const veredicto = document.getElementById('veredictoCltPj');
-      const ia = document.getElementById('iaCltPjParecer');
-
-      if (pjLiquido > cltLiquido) {
-        veredicto.className = "mt-2 p-2 text-center rounded font-bold text-xs bg-green-100 text-green-800";
-        veredicto.innerText = "A opção PJ traz maior ganho financeiro mensal!";
-        ia.innerText = "A opção PJ gera R$ " + (pjLiquido - cltLiquido).toFixed(2) + " a mais por mês. No entanto, lembre-se de reservar parte desse valor para férias e 13º por conta própria.";
-      } else {
-        veredicto.className = "mt-2 p-2 text-center rounded font-bold text-xs bg-blue-100 text-blue-800";
-        veredicto.innerText = "A opção CLT (+ Benefícios) está mais vantajosa!";
-        ia.innerText = "Devido aos benefícios somados (VR, VA, plano de saúde), a proposta CLT traz maior estabilidade e ganho financeiro real.";
-      }
-
-      document.getElementById('resCltPjBox').classList.remove('hidden');
-    }
-
-    // Financiamento
-    function calcularFinanciamento() {
-      const valor = parseFloat(document.getElementById('finValor').value) || 0;
-      const taxaAnual = parseFloat(document.getElementById('finTaxa').value) || 0;
-      const anos = parseInt(document.getElementById('finAnos').value) || 0;
-
-      if(valor <= 0 || taxaAnual <= 0 || anos <= 0) return alert("Preencha todos os campos.");
-
-      const n = anos * 12;
-      const i = (taxaAnual / 100) / 12;
-
-      const amortizacao = valor / n;
-      const sac1 = amortizacao + (valor * i);
-      let sacTotalJuros = 0;
-      let saldoSac = valor;
-      for(let k = 0; k < n; k++) {
-        sacTotalJuros += saldoSac * i;
-        saldoSac -= amortizacao;
-      }
-
-      const pricePmt = valor * ( (i * Math.pow(1 + i, n)) / (Math.pow(1 + i, n) - 1) );
-      const priceTotalJuros = (pricePmt * n) - valor;
-
-      document.getElementById('sacPrimeira').innerText = 'R$ ' + sac1.toFixed(2);
-      document.getElementById('sacJuros').innerText = 'R$ ' + sacTotalJuros.toFixed(2);
-      document.getElementById('priceParcela').innerText = 'R$ ' + pricePmt.toFixed(2);
-      document.getElementById('priceJuros').innerText = 'R$ ' + priceTotalJuros.toFixed(2);
-
-      const economia = priceTotalJuros - sacTotalJuros;
-      document.getElementById('iaFinParecer').innerText = "A tabela SAC economizará R$ " + economia.toFixed(2) + " em juros no longo prazo comparada à PRICE, porém exige uma primeira parcela R$ " + (sac1 - pricePmt).toFixed(2) + " maior.";
-
-      document.getElementById('resFinBox').classList.remove('hidden');
-    }
-
-    // Juros Compostos
-    function calcularJuros() {
-      const init = parseFloat(document.getElementById('jurosInicial').value) || 0;
-      const mens = parseFloat(document.getElementById('jurosMensal').value) || 0;
-      const taxaAnual = parseFloat(document.getElementById('jurosTaxa').value) || 0;
-      const anos = parseInt(document.getElementById('jurosAnos').value) || 0;
-
-      const meses = anos * 12;
-      const taxaMensal = Math.pow(1 + (taxaAnual / 100), 1/12) - 1;
-
-      let montante = init;
-      let investido = init;
-
-      for(let i = 0; i < meses; i++) {
-        montante = (montante + mens) * (1 + taxaMensal);
-        investido += mens;
-      }
-
-      document.getElementById('resInvestido').innerText = 'R$ ' + investido.toFixed(2);
-      document.getElementById('resJurosGanhos').innerText = 'R$ ' + (montante - investido).toFixed(2);
-      document.getElementById('resMontante').innerText = 'R$ ' + montante.toFixed(2);
-
-      document.getElementById('resJurosBox').classList.remove('hidden');
-    }
-
-    // Combustível
+    // === Cálculo Combustível com Maior Contraste Visual ===
     function calcularCombustivel() {
-      const alc = parseFloat(document.getElementById('precoAlcool').value) || 0;
-      const gas = parseFloat(document.getElementById('precoGasolina').value) || 0;
+        const alcool = parseMoney(document.getElementById('comb-alcool').value);
+        const gasolina = parseMoney(document.getElementById('comb-gasolina').value);
 
-      if(alc <= 0 || gas <= 0) return alert("Preencha ambos os valores.");
+        if(!gasolina) return;
+        const proporcao = (alcool / gasolina) * 100;
 
-      const box = document.getElementById('resCombBox');
-      const razao = alc / gas;
-
-      if(razao <= 0.70) {
-        box.className = "mt-4 p-3 text-center rounded-lg font-bold text-xs bg-green-100 text-green-800";
-        box.innerText = "Abasteça com ÁLCOOL! (Proporção: " + (razao * 100).toFixed(0) + "%)";
-      } else {
-        box.className = "mt-4 p-3 text-center rounded-lg font-bold text-xs bg-blue-100 text-blue-800";
-        box.innerText = "Abasteça com GASOLINA! (Proporção: " + (razao * 100).toFixed(0) + "%)";
-      }
-      box.classList.remove('hidden');
+        document.getElementById('comb-resultado').style.display = 'block';
+        
+        if (proporcao <= 70) {
+            document.getElementById('comb-resultado-texto').innerHTML = `
+                Abasteça com <span class="ai-highlight">ÁLCOOL</span>!<br>
+                Proporção: <b>${proporcao.toFixed(0)}%</b> (Abaixo do limite de 70%).
+            `;
+        } else {
+            document.getElementById('comb-resultado-texto').innerHTML = `
+                Abasteça com <span class="ai-highlight">GASOLINA</span>!<br>
+                Proporção: <b>${proporcao.toFixed(0)}%</b> (Acima dos 70% de vantagem do etanol).
+            `;
+        }
     }
-  </script>
+</script>
+
 </body>
 </html>
