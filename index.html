@@ -14,8 +14,7 @@
             --text-main: #0f172a;
             --text-muted: #475569;
             --border: #cbd5e1;
-            --success: #15803d;     /* Verde de bom contraste */
-            --success-bg: #f0fdf4;
+            --success: #15803d;     /* Verde contraste */
             --ai-bg: #eff6ff;        /* Fundo do card IA */
             --ai-border: #bfdbfe;
         }
@@ -61,6 +60,13 @@
         .ai-result-body { font-size: 0.9rem; color: #1e3a8a; line-height: 1.5; }
         .ai-highlight { color: var(--success); font-weight: 700; }
 
+        /* Ações WhatsApp e PDF */
+        .action-buttons { display: flex; gap: 10px; margin-top: 14px; }
+        .btn-secondary { flex: 1; background: #fff; border: 1px solid var(--border); color: var(--text-main); padding: 10px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: 0.2s; }
+        .btn-secondary:hover { background: #f8fafc; border-color: var(--accent); }
+        .btn-wsp { border-color: #22c55e; color: #15803d; }
+        .btn-wsp:hover { background: #f0fdf4; }
+
         /* Teclado da Calculadora - Grid Corrigido */
         .calc-display { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-size: 1.8rem; font-weight: 700; text-align: right; margin-bottom: 12px; color: var(--text-main); word-wrap: break-word; min-height: 64px; }
         .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
@@ -71,8 +77,14 @@
         .calc-btn.equal { background: var(--accent); color: white; border-color: var(--accent); }
         .span-2 { grid-column: span 2; }
 
-        /* Utilitários de Ícones SVG Inline */
+        /* Ícones SVG Inline */
         .icon { width: 18px; height: 18px; fill: currentColor; display: inline-block; vertical-align: middle; }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .app-container { box-shadow: none; max-width: 100%; }
+            .btn-menu, .btn-back, .action-buttons, .card-menu { display: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -134,7 +146,7 @@
             
             <div class="calc-display" id="calc-display">0</div>
             
-            <!-- Grid 4x5 Perfeitamente Alinhado -->
+            <!-- Grid 4x5 Corrigido -->
             <div class="calc-grid">
                 <button class="calc-btn clear" onclick="calcClear()">C</button>
                 <button class="calc-btn op" onclick="calcInput('/')">÷</button>
@@ -149,14 +161,14 @@
                 <button class="calc-btn" onclick="calcInput('4')">4</button>
                 <button class="calc-btn" onclick="calcInput('5')">5</button>
                 <button class="calc-btn" onclick="calcInput('6')">6</button>
-                <button class="calc-btn equal span-2" style="grid-row: span 2; height: 100%;" onclick="calcEqual()">=</button>
+                <button class="calc-btn equal" onclick="calcEqual()">=</button>
 
                 <button class="calc-btn" onclick="calcInput('1')">1</button>
                 <button class="calc-btn" onclick="calcInput('2')">2</button>
                 <button class="calc-btn" onclick="calcInput('3')">3</button>
-
-                <button class="calc-btn span-2" onclick="calcInput('0')">0</button>
                 <button class="calc-btn" onclick="calcInput('.')">,</button>
+
+                <button class="calc-btn span-2" style="grid-column: span 2;" onclick="calcInput('0')">0</button>
             </div>
         </div>
 
@@ -185,7 +197,8 @@
 
             <div id="free-resultado" class="ai-result-box" style="display: none;">
                 <div class="ai-result-header">
-                    🤖 Diagnóstico do Consultor IA
+                    <svg class="icon" style="color:#2563eb;" viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2m8 7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h16m-12 3a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m8 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>
+                    Diagnóstico do Consultor IA
                 </div>
                 <div class="ai-result-body" id="free-resultado-texto"></div>
             </div>
@@ -210,7 +223,8 @@
 
             <div id="comb-resultado" class="ai-result-box" style="display: none;">
                 <div class="ai-result-header">
-                    🤖 Recomendação do Posto
+                    <svg class="icon" style="color:#2563eb;" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9v1z"/></svg>
+                    Recomendação do Posto
                 </div>
                 <div class="ai-result-body" id="comb-resultado-texto"></div>
             </div>
@@ -220,13 +234,13 @@
 </div>
 
 <script>
-    // === Navegação entre Telas ===
+    // Navegação entre telas
     function showView(viewId) {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById(viewId).classList.add('active');
     }
 
-    // === Lógica da Calculadora Padrão (Sem Bugs de Grid) ===
+    // Lógica da Calculadora Padrão
     let calcExpression = '';
     function calcInput(val) {
         if(calcExpression === '0' && val !== '.') calcExpression = '';
@@ -247,7 +261,7 @@
         }
     }
 
-    // === Máscara Simples de Moeda (R$) ===
+    // Máscara de Moeda
     document.querySelectorAll('.money-mask').forEach(input => {
         input.addEventListener('input', (e) => {
             let value = e.target.value.replace(/\D/g, '');
@@ -263,13 +277,18 @@
         return parseFloat(val.replace("R$", "").replace(/\./g, "").replace(",", ".").trim()) || 0;
     }
 
-    // === Cálculo Freelancer ===
+    // Compartilhamento via WhatsApp
+    function enviarWhatsapp(titulo, mensagem) {
+        const texto = encodeURIComponent(`*Guia Financeiro Digital - ${titulo}*\n\n${mensagem}\n\n_Gerado em nosso app financeiro._`);
+        window.open(`https://api.whatsapp.com/send?text=${texto}`, '_blank');
+    }
+
+    // Cálculo Freelancer
     function calcularHora() {
         const meta = parseMoney(document.getElementById('free-meta').value);
         const custos = parseMoney(document.getElementById('free-custos').value);
         const horasDia = parseFloat(document.getElementById('free-horas').value) || 1;
         
-        // Considera 20 dias úteis/mês
         const totalHorasMes = horasDia * 20;
         const faturamentoNecessario = meta + custos;
         const valorHora = faturamentoNecessario / totalHorasMes;
@@ -279,10 +298,19 @@
         document.getElementById('free-resultado-texto').innerHTML = `
             Mínimo a cobrar por HORA: <span class="ai-highlight">R$ ${valorHora.toFixed(2).replace('.', ',')}</span><br><br>
             💡 <b>Regra dos 20%:</b> Para não passar sufoco em períodos sem projetos, cobrir 13º e férias, o recomendado é cobrar <b>R$ ${valorComMargem.toFixed(2).replace('.', ',')}/hora</b>.
+            
+            <div class="action-buttons">
+                <button class="btn-secondary" onclick="window.print()">
+                    📄 Salvar PDF
+                </button>
+                <button class="btn-secondary btn-wsp" onclick="enviarWhatsapp('Valor da Hora Freelancer', 'Minha hora recomendada com margem é R$ ${valorComMargem.toFixed(2).replace('.', ',')}/h')">
+                    📲 WhatsApp
+                </button>
+            </div>
         `;
     }
 
-    // === Cálculo Combustível com Maior Contraste Visual ===
+    // Cálculo Combustível
     function calcularCombustivel() {
         const alcool = parseMoney(document.getElementById('comb-alcool').value);
         const gasolina = parseMoney(document.getElementById('comb-gasolina').value);
@@ -292,17 +320,22 @@
 
         document.getElementById('comb-resultado').style.display = 'block';
         
+        let recomendacao = '';
         if (proporcao <= 70) {
-            document.getElementById('comb-resultado-texto').innerHTML = `
-                Abasteça com <span class="ai-highlight">ÁLCOOL</span>!<br>
-                Proporção: <b>${proporcao.toFixed(0)}%</b> (Abaixo do limite de 70%).
-            `;
+            recomendacao = `Abasteça com <span class="ai-highlight">ÁLCOOL</span>!<br>Proporção: <b>${proporcao.toFixed(0)}%</b> (Abaixo dos 70%).`;
         } else {
-            document.getElementById('comb-resultado-texto').innerHTML = `
-                Abasteça com <span class="ai-highlight">GASOLINA</span>!<br>
-                Proporção: <b>${proporcao.toFixed(0)}%</b> (Acima dos 70% de vantagem do etanol).
-            `;
+            recomendacao = `Abasteça com <span class="ai-highlight">GASOLINA</span>!<br>Proporção: <b>${proporcao.toFixed(0)}%</b> (Acima dos 70%).`;
         }
+
+        document.getElementById('comb-resultado-texto').innerHTML = `
+            ${recomendacao}
+            
+            <div class="action-buttons">
+                <button class="btn-secondary btn-wsp" onclick="enviarWhatsapp('Álcool ou Gasolina', 'Análise de posto: ${proporcao <= 70 ? 'Álcool é mais vantajoso' : 'Gasolina é mais vantajosa'} nesta semana.')">
+                    📲 Compartilhar no WhatsApp
+                </button>
+            </div>
+        `;
     }
 </script>
 
