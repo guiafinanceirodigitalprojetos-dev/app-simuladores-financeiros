@@ -67,7 +67,7 @@
         .btn-wsp { border-color: #22c55e; color: #15803d; }
         .btn-wsp:hover { background: #f0fdf4; }
 
-        /* Teclado da Calculadora - Layout 4x5 Perfeito */
+        /* Teclado da Calculadora */
         .calc-display { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-size: 1.8rem; font-weight: 700; text-align: right; margin-bottom: 12px; color: var(--text-main); word-wrap: break-word; min-height: 64px; }
         .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
         .calc-btn { background: #f8fafc; border: 1px solid var(--border); padding: 16px 0; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; color: var(--text-main); transition: background 0.1s; }
@@ -237,20 +237,64 @@
         document.getElementById(viewId).classList.add('active');
     }
 
-    /* Calculadora Padrão */
+    /* Lógica Corrigida da Calculadora Padrão */
     let calcExpression = '';
+    const operators = ['+', '-', '*', '/'];
+
     function calcInput(val) {
-        if(calcExpression === '0' && val !== '.') calcExpression = '';
-        calcExpression += val;
-        document.getElementById('calc-display').innerText = calcExpression || '0';
+        const display = document.getElementById('calc-display');
+
+        if (calcExpression === '' && operators.includes(val) && val !== '-') {
+            return; // Impede começar com operador (exceto o de subtração para números negativos)
+        }
+
+        const lastChar = calcExpression.slice(-1);
+
+        // Se o último caractere for um operador e o novo input também for operador, substitui o operador anterior
+        if (operators.includes(lastChar) && operators.includes(val)) {
+            calcExpression = calcExpression.slice(0, -1) + val;
+            display.innerText = calcExpression;
+            return;
+        }
+
+        // Evita múltiplos pontos decimais no mesmo número
+        if (val === '.') {
+            const parts = calcExpression.split(/[\+\-\*\/]/);
+            const currentNum = parts[parts.length - 1];
+            if (currentNum.includes('.')) return;
+        }
+
+        if (calcExpression === '0' && val !== '.') {
+            calcExpression = val;
+        } else {
+            calcExpression += val;
+        }
+
+        display.innerText = calcExpression || '0';
     }
+
     function calcClear() {
         calcExpression = '';
         document.getElementById('calc-display').innerText = '0';
     }
+
     function calcEqual() {
+        if (!calcExpression) return;
+
+        // Se a expressão terminar com operador, remove o operador antes de calcular
+        while (operators.includes(calcExpression.slice(-1))) {
+            calcExpression = calcExpression.slice(0, -1);
+        }
+
+        if (!calcExpression) {
+            document.getElementById('calc-display').innerText = '0';
+            return;
+        }
+
         try {
-            calcExpression = eval(calcExpression).toString();
+            const result = eval(calcExpression);
+            // Formata o número para evitar muitas casas decimais
+            calcExpression = Number.isInteger(result) ? result.toString() : parseFloat(result.toFixed(8)).toString();
             document.getElementById('calc-display').innerText = calcExpression;
         } catch {
             document.getElementById('calc-display').innerText = 'Erro';
