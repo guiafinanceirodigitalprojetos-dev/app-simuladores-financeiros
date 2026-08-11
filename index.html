@@ -67,7 +67,7 @@
         .kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
         .kpi-card { background: #ffffff; border: 1px solid var(--border); padding: 12px; border-radius: 8px; text-align: center; }
         .kpi-card span { font-size: 0.75rem; color: var(--text-muted); display: block; font-weight: 600; }
-        .kpi-card strong { font-size: 1rem; color: var(--text-main); margin-top: 4px; display: block; }
+        .kpi-card strong { font-size: 0.95rem; color: var(--text-main); margin-top: 4px; display: block; }
 
         /* Ações WhatsApp e PDF */
         .action-buttons { display: flex; gap: 10px; margin-top: 14px; }
@@ -75,6 +75,14 @@
         .btn-secondary:hover { background: #f8fafc; border-color: var(--accent); }
         .btn-wsp { border-color: #22c55e; color: #15803d; }
         .btn-wsp:hover { background: #f0fdf4; }
+
+        /* Tabela Mês a Mês / Sanfona Accordion */
+        .accordion-btn { width: 100%; background: #fff; border: 1px solid var(--border); padding: 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; color: var(--text-main); text-align: left; cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-top: 14px; }
+        .accordion-content { display: none; margin-top: 10px; max-height: 300px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; background: #fff; }
+        .table-sim { width: 100%; border-collapse: collapse; font-size: 0.75rem; text-align: right; }
+        .table-sim th { background: #f8fafc; padding: 8px 6px; border-bottom: 1px solid var(--border); position: sticky; top: 0; font-weight: 700; color: var(--text-muted); }
+        .table-sim td { padding: 8px 6px; border-bottom: 1px solid #f1f5f9; color: var(--text-main); }
+        .table-sim th:first-child, .table-sim td:first-child { text-align: center; }
 
         /* Teclado da Calculadora */
         .calc-display { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-size: 1.8rem; font-weight: 700; text-align: right; margin-bottom: 12px; color: var(--text-main); word-wrap: break-word; min-height: 64px; }
@@ -87,10 +95,15 @@
 
         .icon { width: 18px; height: 18px; fill: currentColor; display: inline-block; vertical-align: middle; }
 
+        /* Estilo Profissional de Impressão / PDF */
         @media print {
-            body { background: white; padding: 0; }
-            .app-container { box-shadow: none; max-width: 100%; }
-            .btn-menu, .btn-back, .action-buttons, .card-menu { display: none !important; }
+            body { background: white; padding: 0; color: #000; }
+            .app-container { box-shadow: none; max-width: 100%; border: none; border-radius: 0; }
+            header { background: #0f172a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .btn-menu, .btn-back, .action-buttons, .card-menu, .btn-submit, .form-group, .form-row, .accordion-btn { display: none !important; }
+            .accordion-content { display: block !important; max-height: none !important; overflow: visible !important; border: none !important; }
+            .ai-result-box { background: #f8fafc !important; border: 1px solid #cbd5e1 !important; page-break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            canvas { max-height: 250px !important; width: 100% !important; }
         }
     </style>
 </head>
@@ -118,7 +131,7 @@
             <div class="card-menu" onclick="showView('view-juros-compostos')">
                 <div class="card-menu-info">
                     <h3>Simulador de Juros Compostos</h3>
-                    <p>Projeção de patrimônio, rendimentos e gráfico visual</p>
+                    <p>Projeção, inflação, imposto de renda e tabela evolutiva</p>
                 </div>
                 <span>→</span>
             </div>
@@ -163,7 +176,7 @@
         <div id="view-juros-compostos" class="view">
             <button class="btn-back" onclick="showView('view-menu')">← Voltar ao Menu</button>
             <h2 style="font-size: 1.1rem; margin-bottom: 4px;">Simulador de Juros Compostos</h2>
-            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">Veja o poder do tempo sobre seus investimentos.</p>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px;">Calcule o rendimento real, impostos e evolução patrimonial.</p>
 
             <div class="form-group">
                 <label>Aporte Inicial (R$)</label>
@@ -203,25 +216,42 @@
                 </div>
             </div>
 
+            <!-- OPÇÕES AVANÇADAS: IR E INFLAÇÃO -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Imposto de Renda (IR)</label>
+                    <select id="jc-ir">
+                        <option value="regressiva" selected>Tabela Regressiva (22.5% a 15%)</option>
+                        <option value="0">Isento (LCI/LCA/Poupança - 0%)</option>
+                        <option value="15">Ações / FIIs (15%)</option>
+                        <option value="22.5">Curto Prazo (22.5%)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Inflação Estimada (% a.a.)</label>
+                    <input type="number" id="jc-inflacao" value="4.5" step="0.1">
+                </div>
+            </div>
+
             <button class="btn-submit" onclick="calcularJurosCompostos()">Simular Investimento</button>
 
             <div id="jc-resultado" class="ai-result-box" style="display: none;">
                 <div class="kpi-grid">
                     <div class="kpi-card">
-                        <span>Valor Final Total</span>
-                        <strong id="kpi-total" style="color: var(--accent);">R$ 0,00</strong>
+                        <span>Valor Final Bruto</span>
+                        <strong id="kpi-bruto" style="color: var(--accent);">R$ 0,00</strong>
+                    </div>
+                    <div class="kpi-card">
+                        <span>Valor Líquido (s/ IR)</span>
+                        <strong id="kpi-liquido" style="color: var(--success);">R$ 0,00</strong>
                     </div>
                     <div class="kpi-card">
                         <span>Total Investido</span>
                         <strong id="kpi-investido">R$ 0,00</strong>
                     </div>
                     <div class="kpi-card">
-                        <span>Total em Juros</span>
-                        <strong id="kpi-juros" style="color: var(--success);">R$ 0,00</strong>
-                    </div>
-                    <div class="kpi-card">
-                        <span>Ganho vs Poupança</span>
-                        <strong id="kpi-poupanca" style="color: #b45309;">+ R$ 0,00</strong>
+                        <span>Poder de Compra Real</span>
+                        <strong id="kpi-real" style="color: #b45309;">R$ 0,00</strong>
                     </div>
                 </div>
 
@@ -235,6 +265,30 @@
                     Análise do Consultor Financeiro
                 </div>
                 <div class="ai-result-body" id="jc-resultado-texto"></div>
+
+                <!-- Tabela Sanfona Mês a Mês / Ano a Ano -->
+                <button class="accordion-btn" onclick="toggleAccordion()">
+                    <span>📊 Ver Tabela Detalhada de Evolução</span>
+                    <span id="accordion-icon">▼</span>
+                </button>
+                <div id="jc-tabela-container" class="accordion-content">
+                    <table class="table-sim">
+                        <thead>
+                            <tr>
+                                <th>Período</th>
+                                <th>Investido</th>
+                                <th>Juros (Bruto)</th>
+                                <th>Saldo Líquido</th>
+                            </tr>
+                        </thead>
+                        <tbody id="jc-tabela-body"></tbody>
+                    </table>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn-secondary" onclick="window.print()">Salvar PDF / Imprimir</button>
+                    <button class="btn-secondary btn-wsp" id="btn-share-wsp">WhatsApp</button>
+                </div>
             </div>
         </div>
 
@@ -359,7 +413,19 @@
         return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
 
-    /* Lógica do Simulador de Juros Compostos */
+    function toggleAccordion() {
+        const content = document.getElementById('jc-tabela-container');
+        const icon = document.getElementById('accordion-icon');
+        if (content.style.display === "block") {
+            content.style.display = "none";
+            icon.innerText = "▼";
+        } else {
+            content.style.display = "block";
+            icon.innerText = "▲";
+        }
+    }
+
+    /* Lógica Avançada do Simulador de Juros Compostos */
     function calcularJurosCompostos() {
         const inicial = parseMoney(document.getElementById('jc-inicial').value);
         const mensal = parseMoney(document.getElementById('jc-mensal').value);
@@ -367,47 +433,91 @@
         const tipoTaxa = document.getElementById('jc-tipo-taxa').value;
         let tempo = parseInt(document.getElementById('jc-tempo').value) || 0;
         const tipoTempo = document.getElementById('jc-tipo-tempo').value;
+        const tipoIR = document.getElementById('jc-ir').value;
+        const inflacaoAnual = parseFloat(document.getElementById('jc-inflacao').value) || 0;
 
-        // Converter taxa e tempo para meses
         const totalMeses = tipoTempo === 'anos' ? tempo * 12 : tempo;
         let taxaMensal = tipoTaxa === 'ano' ? (Math.pow(1 + (taxa / 100), 1 / 12) - 1) : (taxa / 100);
-        let taxaPoupancaMensal = 0.005; // Média da poupança ~0.5% a.m.
+        let inflacaoMensal = Math.pow(1 + (inflacaoAnual / 100), 1 / 12) - 1;
 
-        let saldo = inicial;
-        let saldoPoupanca = inicial;
+        let saldoBruto = inicial;
         let totalInvestido = inicial;
 
         let labels = [];
         let dataInvestido = [];
         let dataTotal = [];
+        let tabelaHTML = '';
 
         labels.push('Mês 0');
         dataInvestido.push(inicial);
         dataTotal.push(inicial);
 
+        // Função para calcular alíquota de IR regressiva
+        function getAliquotaIR(dias) {
+            if (tipoIR === 'regressiva') {
+                if (dias <= 180) return 0.225;
+                if (dias <= 360) return 0.20;
+                if (dias <= 720) return 0.175;
+                return 0.15;
+            }
+            return (parseFloat(tipoIR) || 0) / 100;
+        }
+
         for (let m = 1; m <= totalMeses; m++) {
-            saldo = saldo * (1 + taxaMensal) + mensal;
-            saldoPoupanca = saldoPoupanca * (1 + taxaPoupancaMensal) + mensal;
+            saldoBruto = saldoBruto * (1 + taxaMensal) + mensal;
             totalInvestido += mensal;
 
-            // Registrar pontos no gráfico (reduzir pontos se for muitos anos)
+            const diasDecorridos = m * 30;
+            const jurosAtuais = saldoBruto - totalInvestido;
+            const aliquotaAtual = getAliquotaIR(diasDecorridos);
+            const saldoLiquidoAtual = saldoBruto - (jurosAtuais * aliquotaAtual);
+
+            // Gerar linhas da tabela (Exibir por anos se tempo > 2 anos, senão mensal)
+            if (totalMeses > 24) {
+                if (m % 12 === 0 || m === totalMeses) {
+                    tabelaHTML += `<tr>
+                        <td>Ano ${Math.ceil(m/12)}</td>
+                        <td>${formatBRL(totalInvestido)}</td>
+                        <td>${formatBRL(jurosAtuais)}</td>
+                        <td style="color:var(--success); font-weight:600;">${formatBRL(saldoLiquidoAtual)}</td>
+                    </tr>`;
+                }
+            } else {
+                tabelaHTML += `<tr>
+                    <td>Mês ${m}</td>
+                    <td>${formatBRL(totalInvestido)}</td>
+                    <td>${formatBRL(jurosAtuais)}</td>
+                    <td style="color:var(--success); font-weight:600;">${formatBRL(saldoLiquidoAtual)}</td>
+                </tr>`;
+            }
+
+            // Pontos do gráfico
             if (totalMeses <= 24 || m % 6 === 0 || m === totalMeses) {
                 labels.push(`Mês ${m}`);
                 dataInvestido.push(totalInvestido);
-                dataTotal.push(saldo);
+                dataTotal.push(saldoBruto);
             }
         }
 
-        const totalJuros = saldo - totalInvestido;
-        const diferencaPoupanca = saldo - saldoPoupanca;
+        const totalJurosBruto = saldoBruto - totalInvestido;
+        const aliquotaFinal = getAliquotaIR(totalMeses * 30);
+        const impostoDevido = totalJurosBruto * aliquotaFinal;
+        const saldoLiquido = saldoBruto - impostoDevido;
+
+        // Calcular Ganho Real / Poder de Compra (Deflacionado)
+        const fatorInflacao = Math.pow(1 + inflacaoMensal, totalMeses);
+        const poderCompraReal = saldoLiquido / fatorInflacao;
 
         // Atualizar KPIs
-        document.getElementById('kpi-total').innerText = formatBRL(saldo);
+        document.getElementById('kpi-bruto').innerText = formatBRL(saldoBruto);
+        document.getElementById('kpi-liquido').innerText = formatBRL(saldoLiquido);
         document.getElementById('kpi-investido').innerText = formatBRL(totalInvestido);
-        document.getElementById('kpi-juros').innerText = formatBRL(totalJuros);
-        document.getElementById('kpi-poupanca').innerText = `+ ${formatBRL(diferencaPoupanca)}`;
+        document.getElementById('kpi-real').innerText = formatBRL(poderCompraReal);
 
-        // Renderizar ou atualizar gráfico
+        // Preencher Tabela
+        document.getElementById('jc-tabela-body').innerHTML = tabelaHTML;
+
+        // Renderizar/Atualizar Gráfico
         const ctx = document.getElementById('jcChart').getContext('2d');
         if (myChart) myChart.destroy();
 
@@ -417,7 +527,7 @@
                 labels: labels,
                 datasets: [
                     {
-                        label: 'Patrimônio Total',
+                        label: 'Patrimônio Total (Bruto)',
                         data: dataTotal,
                         borderColor: '#2563eb',
                         backgroundColor: 'rgba(37, 99, 235, 0.1)',
@@ -440,15 +550,22 @@
             }
         });
 
+        // Relatório do Consultor
         document.getElementById('jc-resultado-texto').innerHTML = `
-            Ao final de <b>${tempo} ${tipoTempo}</b>, você terá acumulado <span class="ai-highlight">${formatBRL(saldo)}</span>.<br><br>
-            Do total, <b>${formatBRL(totalJuros)}</b> são apenas rendimentos de juros compostos multiplicando o seu dinheiro. Deixar esse valor em um investimento rentável gerou <b>${formatBRL(diferencaPoupanca)}</b> a mais do que na Poupança tradicional.
-            
-            <div class="action-buttons">
-                <button class="btn-secondary" onclick="window.print()">Salvar PDF</button>
-                <button class="btn-secondary btn-wsp" onclick="enviarWhatsapp('Simulador de Juros Compostos', 'Em ${tempo} ${tipoTempo}, meu investimento chegará a ${formatBRL(saldo)} (sendo ${formatBRL(totalJuros)} só de juros)!')">WhatsApp</button>
-            </div>
+            Ao final de <b>${tempo} ${tipoTempo}</b>, você terá acumulado <span class="ai-highlight">${formatBRL(saldoBruto)}</span> brutos.<br><br>
+            • <b>Lucro de Juros:</b> ${formatBRL(totalJurosBruto)}<br>
+            • <b>Imposto de Renda (${(aliquotaFinal * 100).toFixed(1)}%):</b> -${formatBRL(impostoDevido)}<br>
+            • <b>Valor Líquido na Conta:</b> <span class="ai-highlight">${formatBRL(saldoLiquido)}</span><br>
+            • <b>Poder de Compra Ajustado pela Inflação (${inflacaoAnual}% a.a.):</b> ${formatBRL(poderCompraReal)}
         `;
+
+        // Ação do Botão do WhatsApp
+        document.getElementById('btn-share-wsp').onclick = function() {
+            enviarWhatsapp(
+                'Simulador de Juros Compostos Avançado',
+                `Em ${tempo} ${tipoTempo}, acumularei ${formatBRL(saldoBruto)} brutos (${formatBRL(saldoLiquido)} líquidos de IR)!`
+            );
+        };
 
         document.getElementById('jc-resultado').style.display = 'block';
     }
