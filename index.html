@@ -95,6 +95,9 @@
 
         .icon { width: 18px; height: 18px; fill: currentColor; display: inline-block; vertical-align: middle; }
 
+        /* Subtítulos de Seções em Formulários */
+        .sub-header { font-size: 0.85rem; font-weight: 700; color: var(--accent); margin: 16px 0 8px 0; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+
         /* Otimização Profissional de Impressão / PDF */
         @media print {
             body { background: white !important; padding: 0 !important; margin: 0 !important; color: #000 !important; }
@@ -103,7 +106,7 @@
             header { background: #0f172a !important; padding: 12px 20px !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             
             /* Ocultar elementos desnecessários na impressão */
-            .btn-menu, .btn-back, .action-buttons, .card-menu, .btn-submit, .form-group, .form-row, .accordion-btn, h2, p { display: none !important; }
+            .btn-menu, .btn-back, .action-buttons, .card-menu, .btn-submit, .form-group, .form-row, .accordion-btn, h2, p, .sub-header { display: none !important; }
             
             /* Mostrar e formatar apenas a caixa de resultados */
             .ai-result-box { display: block !important; margin-top: 10px !important; background: #ffffff !important; border: 1px solid #cbd5e1 !important; padding: 15px !important; page-break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -134,6 +137,27 @@
         <div id="view-menu" class="view active">
             
             <div class="section-title">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
+                Trabalho & Carreira
+            </div>
+
+            <div class="card-menu" onclick="showView('view-clt-pj')">
+                <div class="card-menu-info">
+                    <h3>Calculadora CLT vs. PJ</h3>
+                    <p>Comparativo completo com VR, VA, Saúde, 13º e FGTS</p>
+                </div>
+                <span>→</span>
+            </div>
+
+            <div class="card-menu" onclick="showView('view-freelancer')">
+                <div class="card-menu-info">
+                    <h3>Calculadora Valor/Hora (Freelancer)</h3>
+                    <p>Quanto cobrar para atingir sua meta de salário real</p>
+                </div>
+                <span>→</span>
+            </div>
+
+            <div class="section-title">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
                 Investimentos & Aposentadoria
             </div>
@@ -159,19 +183,6 @@
                 <span>→</span>
             </div>
 
-            <div class="section-title">
-                <svg class="icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14h-2v-2h2v2zm0-4h-2V7h2v5z"/></svg>
-                Finanças & Trabalho
-            </div>
-
-            <div class="card-menu" onclick="showView('view-freelancer')">
-                <div class="card-menu-info">
-                    <h3>Calculadora Valor/Hora (Freelancer)</h3>
-                    <p>Quanto cobrar para atingir sua meta de salário real</p>
-                </div>
-                <span>→</span>
-            </div>
-
             <div class="card-menu" onclick="showView('view-combustivel')">
                 <div class="card-menu-info">
                     <h3>Álcool vs Gasolina</h3>
@@ -180,6 +191,79 @@
                 <span>→</span>
             </div>
 
+        </div>
+
+        <!-- MÓDULO 2: SIMULADOR CLT VS. PJ -->
+        <div id="view-clt-pj" class="view">
+            <button class="btn-back" onclick="showView('view-menu')">← Voltar ao Menu</button>
+            <h2 style="font-size: 1.1rem; margin-bottom: 4px;">Comparador CLT vs. PJ</h2>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px;">Descubra exatamente quanto sua proposta PJ precisa ser para valer a pena.</p>
+
+            <div class="sub-header">Dados do Contrato CLT Atual</div>
+
+            <div class="form-group">
+                <label>Salário Bruto CLT (R$)</label>
+                <input type="text" id="clt-salario" class="money-mask" value="R$ 6.000,00">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>VR / VA Mensal (R$)</label>
+                    <input type="text" id="clt-vr" class="money-mask" value="R$ 800,00">
+                </div>
+                <div class="form-group">
+                    <label>Plano de Saúde (R$)</label>
+                    <input type="text" id="clt-saude" class="money-mask" value="R$ 450,00">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Outros Benefícios/Bônus Anuais (R$)</label>
+                <input type="text" id="clt-outros" class="money-mask" placeholder="Ex: PLR, auxílio home office" value="R$ 2.000,00">
+            </div>
+
+            <div class="sub-header">Parâmetros do Contrato PJ</div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Imposto PJ Estimado</label>
+                    <select id="pj-imposto">
+                        <option value="6" selected>Simples Anexo III (~6%)</option>
+                        <option value="15.5">Simples Anexo V / LP (~15.5%)</option>
+                        <option value="0">MEI (Isento / Valor Fixo)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Contador/Custos (R$/mês)</label>
+                    <input type="text" id="pj-contador" class="money-mask" value="R$ 200,00">
+                </div>
+            </div>
+
+            <button class="btn-submit" onclick="calcularCltPj()">Calcular Equivalência PJ</button>
+
+            <div id="clt-pj-resultado" class="ai-result-box" style="display: none;">
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <span>Líquido CLT (+Benefícios)</span>
+                        <strong id="kpi-clt-total" style="color: var(--accent);">R$ 0,00</strong>
+                    </div>
+                    <div class="kpi-card">
+                        <span>Faturamento PJ Mínimo</span>
+                        <strong id="kpi-pj-minimo" style="color: var(--success);">R$ 0,00</strong>
+                    </div>
+                </div>
+
+                <div class="ai-result-header">
+                    <svg class="icon" style="color:#2563eb;" viewBox="0 0 24 24"><path d="M12 2a2 2 0 0 1 2 2v1a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4a2 2 0 0 1 2-2m8 7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h16m-12 3a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m8 0a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z"/></svg>
+                    Veredito do Consultor Financeiro
+                </div>
+                <div class="ai-result-body" id="clt-pj-resultado-texto"></div>
+
+                <div class="action-buttons">
+                    <button class="btn-secondary" onclick="window.print()">Salvar PDF / Imprimir</button>
+                    <button class="btn-secondary btn-wsp" id="btn-share-wsp-pj">WhatsApp</button>
+                </div>
+            </div>
         </div>
 
         <!-- SIMULADOR DE JUROS COMPOSTOS -->
@@ -435,6 +519,86 @@
         }
     }
 
+    /* LÓGICA MÓDULO 2: SIMULADOR CLT VS. PJ */
+    function calcularINSS(salarioBruto) {
+        let inss = 0;
+        if (salarioBruto <= 1412.00) {
+            inss = salarioBruto * 0.075;
+        } else if (salarioBruto <= 2666.68) {
+            inss = (1412 * 0.075) + ((salarioBruto - 1412) * 0.09);
+        } else if (salarioBruto <= 4000.03) {
+            inss = (1412 * 0.075) + ((2666.68 - 1412) * 0.09) + ((salarioBruto - 2666.68) * 0.12);
+        } else if (salarioBruto <= 7786.02) {
+            inss = (1412 * 0.075) + ((2666.68 - 1412) * 0.09) + ((4000.03 - 2666.68) * 0.12) + ((salarioBruto - 4000.03) * 0.14);
+        } else {
+            inss = 908.85; // Teto do INSS
+        }
+        return inss;
+    }
+
+    function calcularIRPF(baseCalculo) {
+        if (baseCalculo <= 2259.20) return 0;
+        if (baseCalculo <= 2826.65) return (baseCalculo * 0.075) - 169.44;
+        if (baseCalculo <= 3751.05) return (baseCalculo * 0.15) - 381.44;
+        if (baseCalculo <= 4664.68) return (baseCalculo * 0.225) - 662.77;
+        return (baseCalculo * 0.275) - 896.00;
+    }
+
+    function calcularCltPj() {
+        const salarioBruto = parseMoney(document.getElementById('clt-salario').value);
+        const vrVa = parseMoney(document.getElementById('clt-vr').value);
+        const saude = parseMoney(document.getElementById('clt-saude').value);
+        const outrosAnuais = parseMoney(document.getElementById('clt-outros').value);
+        
+        const impostoPjPct = parseFloat(document.getElementById('pj-imposto').value) || 0;
+        const contadorPj = parseMoney(document.getElementById('pj-contador').value);
+
+        // Descontos Oficiais CLT
+        const descontoINSS = calcularINSS(salarioBruto);
+        const baseIRPF = Math.max(0, salarioBruto - descontoINSS);
+        const descontoIRPF = calcularIRPF(baseIRPF);
+        const salarioLiquido = salarioBruto - descontoINSS - descontoIRPF;
+
+        // Proporções de Benefícios Anualizados
+        const fgtsAnual = salarioBruto * 0.08 * 12; // 8% FGTS
+        const decimoTerceiro = salarioLiquido; // 13º Salário Líquido Estimado
+        const feriasComTerco = salarioLiquido * 1.3333; // Férias Líquidas + 1/3
+        const vrVaAnual = vrVa * 12;
+        const saudeAnual = saude * 12;
+
+        // Total do Pacote CLT Equivalente Anual
+        const pacoteCltAnual = (salarioLiquido * 12) + decimoTerceiro + feriasComTerco + fgtsAnual + vrVaAnual + saudeAnual + outrosAnuais;
+        const pacoteCltMensalMedio = pacoteCltAnual / 12;
+
+        // Faturamento PJ Mínimo Mensal Necessário
+        // Formula: FaturamentoPJ * (1 - aliquota) - Contador = ValorMensalCLT
+        const taxaLiquidaPj = 1 - (impostoPjPct / 100);
+        const faturamentoPjMinimo = (pacoteCltMensalMedio + contadorPj) / (taxaLiquidaPj > 0 ? taxaLiquidaPj : 1);
+
+        // Atualizar KPIs
+        document.getElementById('kpi-clt-total').innerText = formatBRL(pacoteCltMensalMedio);
+        document.getElementById('kpi-pj-minimo').innerText = formatBRL(faturamentoPjMinimo);
+
+        // Exibir Diagnóstico do Consultor
+        document.getElementById('clt-pj-resultado-texto').innerHTML = `
+            Seu salário CLT de <b>${formatBRL(salarioBruto)}</b> gera <b>${formatBRL(salarioLiquido)}</b> líquido na conta.<br><br>
+            Porém, considerando <b>13º, Férias (+1/3), FGTS, VR/VA (${formatBRL(vrVa)}/mês), Plano de Saúde (${formatBRL(saude)}/mês)</b> e bônus, o seu pacote real vale <span class="ai-highlight">${formatBRL(pacoteCltMensalMedio)}/mês</span>.<br><br>
+            • <b>Faturamento Mínimo PJ:</b> <span class="ai-highlight">${formatBRL(faturamentoPjMinimo)}/mês</span><br>
+            • <b>Imposto PJ Estimado:</b> ${impostoPjPct}% (${formatBRL(faturamentoPjMinimo * (impostoPjPct/100))}/mês)<br>
+            • <b>Contador + Custos:</b> -${formatBRL(contadorPj)}/mês<br><br>
+            💡 <i>Dica: Só aceite uma proposta PJ se o valor for <b>superior a ${formatBRL(faturamentoPjMinimo)}</b> para valer a pena a transição sem perder poder de compra!</i>
+        `;
+
+        document.getElementById('btn-share-wsp-pj').onclick = function() {
+            enviarWhatsapp(
+                'Comparativo CLT vs. PJ',
+                `Para substituir meu salário CLT de ${formatBRL(salarioBruto)} (com benefícios), meu contrato PJ precisa ser de NO MÍNIMO ${formatBRL(faturamentoPjMinimo)}/mês!`
+            );
+        };
+
+        document.getElementById('clt-pj-resultado').style.display = 'block';
+    }
+
     /* Lógica Avançada do Simulador de Juros Compostos */
     function calcularJurosCompostos() {
         const inicial = parseMoney(document.getElementById('jc-inicial').value);
@@ -462,7 +626,6 @@
         dataInvestido.push(inicial);
         dataTotal.push(inicial);
 
-        // Função para calcular alíquota de IR regressiva
         function getAliquotaIR(dias) {
             if (tipoIR === 'regressiva') {
                 if (dias <= 180) return 0.225;
@@ -482,7 +645,6 @@
             const aliquotaAtual = getAliquotaIR(diasDecorridos);
             const saldoLiquidoAtual = saldoBruto - (jurosAtuais * aliquotaAtual);
 
-            // Gerar linhas da tabela (Exibir por anos se tempo > 2 anos, senão mensal)
             if (totalMeses > 24) {
                 if (m % 12 === 0 || m === totalMeses) {
                     tabelaHTML += `<tr>
@@ -501,7 +663,6 @@
                 </tr>`;
             }
 
-            // Pontos do gráfico
             if (totalMeses <= 24 || m % 6 === 0 || m === totalMeses) {
                 labels.push(`Mês ${m}`);
                 dataInvestido.push(totalInvestido);
@@ -514,20 +675,16 @@
         const impostoDevido = totalJurosBruto * aliquotaFinal;
         const saldoLiquido = saldoBruto - impostoDevido;
 
-        // Calcular Ganho Real / Poder de Compra (Deflacionado)
         const fatorInflacao = Math.pow(1 + inflacaoMensal, totalMeses);
         const poderCompraReal = saldoLiquido / fatorInflacao;
 
-        // Atualizar KPIs
         document.getElementById('kpi-bruto').innerText = formatBRL(saldoBruto);
         document.getElementById('kpi-liquido').innerText = formatBRL(saldoLiquido);
         document.getElementById('kpi-investido').innerText = formatBRL(totalInvestido);
         document.getElementById('kpi-real').innerText = formatBRL(poderCompraReal);
 
-        // Preencher Tabela
         document.getElementById('jc-tabela-body').innerHTML = tabelaHTML;
 
-        // Renderizar/Atualizar Gráfico
         const ctx = document.getElementById('jcChart').getContext('2d');
         if (myChart) myChart.destroy();
 
@@ -560,7 +717,6 @@
             }
         });
 
-        // Relatório do Consultor
         document.getElementById('jc-resultado-texto').innerHTML = `
             Ao final de <b>${tempo} ${tipoTempo}</b>, você terá acumulado <span class="ai-highlight">${formatBRL(saldoBruto)}</span> brutos.<br><br>
             • <b>Lucro de Juros:</b> ${formatBRL(totalJurosBruto)}<br>
@@ -569,7 +725,6 @@
             • <b>Poder de Compra Ajustado pela Inflação (${inflacaoAnual}% a.a.):</b> ${formatBRL(poderCompraReal)}
         `;
 
-        // Ação do Botão do WhatsApp
         document.getElementById('btn-share-wsp').onclick = function() {
             enviarWhatsapp(
                 'Simulador de Juros Compostos Avançado',
