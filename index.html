@@ -26,14 +26,19 @@
         <p class="text-xs text-gray-500">Compare renda líquida real e benefícios</p>
       </button>
 
-      <button onclick="abrirTela('telaCombustivel')" class="w-full bg-white p-4 rounded-xl shadow-sm border border-gray-200 text-left hover:bg-blue-50 transition">
-        <p class="font-bold text-blue-900">⛽ Comparador de Combustível</p>
-        <p class="text-xs text-gray-500">Álcool vs Gasolina + consumo/km</p>
+      <button onclick="abrirTela('telaFinanciamento')" class="w-full bg-white p-4 rounded-xl shadow-sm border border-gray-200 text-left hover:bg-blue-50 transition">
+        <p class="font-bold text-blue-900">🏠 Simulador de Financiamento</p>
+        <p class="text-xs text-gray-500">Tabela SAC vs PRICE e amortização</p>
       </button>
 
       <button onclick="abrirTela('telaJuros')" class="w-full bg-white p-4 rounded-xl shadow-sm border border-gray-200 text-left hover:bg-blue-50 transition">
         <p class="font-bold text-blue-900">📈 Juros Compostos</p>
         <p class="text-xs text-gray-500">Simule sua independência financeira</p>
+      </button>
+
+      <button onclick="abrirTela('telaCombustivel')" class="w-full bg-white p-4 rounded-xl shadow-sm border border-gray-200 text-left hover:bg-blue-50 transition">
+        <p class="font-bold text-blue-900">⛽ Comparador de Combustível</p>
+        <p class="text-xs text-gray-500">Álcool vs Gasolina + consumo/km</p>
       </button>
     </div>
 
@@ -66,25 +71,42 @@
       </div>
     </div>
 
-    <!-- 2. Tela Combustível -->
-    <div id="telaCombustivel" class="hidden bg-white p-5 rounded-xl shadow-md border border-gray-200">
+    <!-- 2. Tela Financiamento -->
+    <div id="telaFinanciamento" class="hidden bg-white p-5 rounded-xl shadow-md border border-gray-200">
       <button onclick="mostrarMenu()" class="text-xs font-bold text-blue-800 mb-3 block">← Voltar ao Menu</button>
-      <h2 class="text-lg font-bold text-blue-900 mb-1">⛽ Álcool ou Gasolina?</h2>
-      <p class="text-xs text-gray-500 mb-4">Descubra o combustível mais vantajoso no posto.</p>
+      <h2 class="text-lg font-bold text-blue-900 mb-1">🏠 Financiamento (SAC vs PRICE)</h2>
+      <p class="text-xs text-gray-500 mb-4">Simule e compare as parcelas do seu imóvel ou veículo.</p>
 
       <div class="space-y-3 text-sm">
         <div>
-          <label class="block font-medium text-gray-700 mb-1">Preço do Álcool (R$)</label>
-          <input type="number" step="0.01" id="precoAlcool" placeholder="Ex: 3.89" class="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block font-medium text-gray-700 mb-1">Valor a Financiar (R$)</label>
+          <input type="number" id="finValor" placeholder="Ex: 200000" class="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
         </div>
         <div>
-          <label class="block font-medium text-gray-700 mb-1">Preço da Gasolina (R$)</label>
-          <input type="number" step="0.01" id="precoGasolina" placeholder="Ex: 5.59" class="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+          <label class="block font-medium text-gray-700 mb-1">Taxa de Juros Anual (%)</label>
+          <input type="number" step="0.1" id="finTaxa" placeholder="Ex: 10.5" class="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
         </div>
-        <button onclick="calcularCombustivel()" class="w-full bg-blue-900 text-white font-bold py-2.5 rounded-lg hover:bg-blue-800 transition">Comparar</button>
+        <div>
+          <label class="block font-medium text-gray-700 mb-1">Prazo (Anos)</label>
+          <input type="number" id="finAnos" placeholder="Ex: 20" class="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <button onclick="calcularFinanciamento()" class="w-full bg-blue-900 text-white font-bold py-2.5 rounded-lg hover:bg-blue-800 transition">Simular Financiamento</button>
       </div>
 
-      <div id="resCombBox" class="hidden mt-4 p-3 text-center rounded-lg font-bold text-xs"></div>
+      <div id="resFinBox" class="hidden mt-4 p-4 rounded-lg border text-sm space-y-3">
+        <div class="border-b pb-2">
+          <p class="font-bold text-blue-900">📌 Tabela SAC (Parcelas Decrescentes):</p>
+          <div class="flex justify-between text-xs mt-1"><span>Primeira Parcela:</span><span id="sacPrimeira" class="font-bold">R$ 0,00</span></div>
+          <div class="flex justify-between text-xs"><span>Última Parcela:</span><span id="sacUltima" class="font-bold">R$ 0,00</span></div>
+          <div class="flex justify-between text-xs mt-1"><span class="text-gray-500">Total de Juros:</span><span id="sacJuros" class="font-semibold text-gray-700">R$ 0,00</span></div>
+        </div>
+
+        <div>
+          <p class="font-bold text-blue-900">📌 Tabela PRICE (Parcelas Fixas):</p>
+          <div class="flex justify-between text-xs mt-1"><span>Parcela Mensal Fixa:</span><span id="priceParcela" class="font-bold">R$ 0,00</span></div>
+          <div class="flex justify-between text-xs mt-1"><span class="text-gray-500">Total de Juros:</span><span id="priceJuros" class="font-semibold text-gray-700">R$ 0,00</span></div>
+        </div>
+      </div>
     </div>
 
     <!-- 3. Tela Juros Compostos -->
@@ -120,6 +142,27 @@
       </div>
     </div>
 
+    <!-- 4. Tela Combustível -->
+    <div id="telaCombustivel" class="hidden bg-white p-5 rounded-xl shadow-md border border-gray-200">
+      <button onclick="mostrarMenu()" class="text-xs font-bold text-blue-800 mb-3 block">← Voltar ao Menu</button>
+      <h2 class="text-lg font-bold text-blue-900 mb-1">⛽ Álcool ou Gasolina?</h2>
+      <p class="text-xs text-gray-500 mb-4">Descubra o combustível mais vantajoso no posto.</p>
+
+      <div class="space-y-3 text-sm">
+        <div>
+          <label class="block font-medium text-gray-700 mb-1">Preço do Álcool (R$)</label>
+          <input type="number" step="0.01" id="precoAlcool" placeholder="Ex: 3.89" class="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block font-medium text-gray-700 mb-1">Preço da Gasolina (R$)</label>
+          <input type="number" step="0.01" id="precoGasolina" placeholder="Ex: 5.59" class="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <button onclick="calcularCombustivel()" class="w-full bg-blue-900 text-white font-bold py-2.5 rounded-lg hover:bg-blue-800 transition">Comparar</button>
+      </div>
+
+      <div id="resCombBox" class="hidden mt-4 p-3 text-center rounded-lg font-bold text-xs"></div>
+    </div>
+
   </main>
 
   <!-- Banner AdMob Simulado -->
@@ -131,8 +174,9 @@
     function fecharTodasTelas() {
       document.getElementById('menuPrincipal').classList.add('hidden');
       document.getElementById('telaCltPj').classList.add('hidden');
-      document.getElementById('telaCombustivel').classList.add('hidden');
+      document.getElementById('telaFinanciamento').classList.add('hidden');
       document.getElementById('telaJuros').classList.add('hidden');
+      document.getElementById('telaCombustivel').classList.add('hidden');
     }
 
     function mostrarMenu() {
@@ -145,7 +189,7 @@
       document.getElementById(idTela).classList.remove('hidden');
     }
 
-    // Lógica CLT vs PJ
+    // CLT vs PJ
     function calcularCltPj() {
       const clt = parseFloat(document.getElementById('cltSalario').value) || 0;
       const beneficios = parseFloat(document.getElementById('cltBeneficios').value) || 0;
@@ -169,27 +213,43 @@
       document.getElementById('resCltPjBox').classList.remove('hidden');
     }
 
-    // Lógica Combustível
-    function calcularCombustivel() {
-      const alc = parseFloat(document.getElementById('precoAlcool').value) || 0;
-      const gas = parseFloat(document.getElementById('precoGasolina').value) || 0;
+    // Financiamento (SAC vs PRICE)
+    function calcularFinanciamento() {
+      const valor = parseFloat(document.getElementById('finValor').value) || 0;
+      const taxaAnual = parseFloat(document.getElementById('finTaxa').value) || 0;
+      const anos = parseInt(document.getElementById('finAnos').value) || 0;
 
-      if(alc <= 0 || gas <= 0) return alert("Preencha ambos os valores.");
+      if(valor <= 0 || taxaAnual <= 0 || anos <= 0) return alert("Preencha todos os campos.");
 
-      const box = document.getElementById('resCombBox');
-      const razao = alc / gas;
+      const n = anos * 12;
+      const i = (taxaAnual / 100) / 12;
 
-      if(razao <= 0.70) {
-        box.className = "mt-4 p-3 text-center rounded-lg font-bold text-xs bg-green-100 text-green-800";
-        box.innerText = "Abasteça com ÁLCOOL! (Proporção: " + (razao * 100).toFixed(0) + "%)";
-      } else {
-        box.className = "mt-4 p-3 text-center rounded-lg font-bold text-xs bg-blue-100 text-blue-800";
-        box.innerText = "Abasteça com GASOLINA! (Proporção: " + (razao * 100).toFixed(0) + "%)";
+      // SAC
+      const amortizacao = valor / n;
+      const sac1 = amortizacao + (valor * i);
+      const sacUlt = amortizacao + (amortizacao * i);
+      let sacTotalJuros = 0;
+      let saldoSac = valor;
+      for(let k = 0; k < n; k++) {
+        sacTotalJuros += saldoSac * i;
+        saldoSac -= amortizacao;
       }
-      box.classList.remove('hidden');
+
+      // PRICE
+      const pricePmt = valor * ( (i * Math.pow(1 + i, n)) / (Math.pow(1 + i, n) - 1) );
+      const priceTotalJuros = (pricePmt * n) - valor;
+
+      document.getElementById('sacPrimeira').innerText = 'R$ ' + sac1.toFixed(2);
+      document.getElementById('sacUltima').innerText = 'R$ ' + sacUlt.toFixed(2);
+      document.getElementById('sacJuros').innerText = 'R$ ' + sacTotalJuros.toFixed(2);
+
+      document.getElementById('priceParcela').innerText = 'R$ ' + pricePmt.toFixed(2);
+      document.getElementById('priceJuros').innerText = 'R$ ' + priceTotalJuros.toFixed(2);
+
+      document.getElementById('resFinBox').classList.remove('hidden');
     }
 
-    // Lógica Juros Compostos
+    // Juros Compostos
     function calcularJuros() {
       const init = parseFloat(document.getElementById('jurosInicial').value) || 0;
       const mens = parseFloat(document.getElementById('jurosMensal').value) || 0;
@@ -214,6 +274,26 @@
       document.getElementById('resMontante').innerText = 'R$ ' + montante.toFixed(2);
 
       document.getElementById('resJurosBox').classList.remove('hidden');
+    }
+
+    // Combustível
+    function calcularCombustivel() {
+      const alc = parseFloat(document.getElementById('precoAlcool').value) || 0;
+      const gas = parseFloat(document.getElementById('precoGasolina').value) || 0;
+
+      if(alc <= 0 || gas <= 0) return alert("Preencha ambos os valores.");
+
+      const box = document.getElementById('resCombBox');
+      const razao = alc / gas;
+
+      if(razao <= 0.70) {
+        box.className = "mt-4 p-3 text-center rounded-lg font-bold text-xs bg-green-100 text-green-800";
+        box.innerText = "Abasteça com ÁLCOOL! (Proporção: " + (razao * 100).toFixed(0) + "%)";
+      } else {
+        box.className = "mt-4 p-3 text-center rounded-lg font-bold text-xs bg-blue-100 text-blue-800";
+        box.innerText = "Abasteça com GASOLINA! (Proporção: " + (razao * 100).toFixed(0) + "%)";
+      }
+      box.classList.remove('hidden');
     }
   </script>
 </body>
