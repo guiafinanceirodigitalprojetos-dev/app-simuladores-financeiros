@@ -9,56 +9,114 @@
 <body class="bg-gray-100 text-gray-800 font-sans min-h-screen flex flex-col">
 
   <!-- Header -->
-  <header class="bg-blue-900 text-white p-4 text-center shadow-md">
+  <header class="bg-blue-900 text-white p-4 text-center shadow-md cursor-pointer" onclick="mostrarMenu()">
     <h1 class="text-xl font-bold">Guia Financeiro Digital</h1>
     <p class="text-xs text-blue-200">Suíte de Simuladores Rápidos</p>
   </header>
 
   <!-- Conteúdo Principal -->
   <main class="flex-1 p-4 max-w-md mx-auto w-full">
-    
-    <!-- Tela do Simulador CLT vs PJ -->
-    <div class="bg-white p-5 rounded-xl shadow-md border border-gray-200">
+
+    <!-- Menu Principal -->
+    <div id="menuPrincipal" class="space-y-3">
+      <h2 class="text-lg font-semibold mb-3 text-gray-700">Escolha uma ferramenta:</h2>
+      
+      <button onclick="abrirTela('telaCltPj')" class="w-full bg-white p-4 rounded-xl shadow-sm border border-gray-200 text-left hover:bg-blue-50 transition">
+        <p class="font-bold text-blue-900">💼 Calculadora CLT vs PJ</p>
+        <p class="text-xs text-gray-500">Compare renda líquida real e benefícios</p>
+      </button>
+
+      <button onclick="abrirTela('telaCombustivel')" class="w-full bg-white p-4 rounded-xl shadow-sm border border-gray-200 text-left hover:bg-blue-50 transition">
+        <p class="font-bold text-blue-900">⛽ Comparador de Combustível</p>
+        <p class="text-xs text-gray-500">Álcool vs Gasolina + consumo/km</p>
+      </button>
+
+      <button onclick="abrirTela('telaJuros')" class="w-full bg-white p-4 rounded-xl shadow-sm border border-gray-200 text-left hover:bg-blue-50 transition">
+        <p class="font-bold text-blue-900">📈 Juros Compostos</p>
+        <p class="text-xs text-gray-500">Simule sua independência financeira</p>
+      </button>
+    </div>
+
+    <!-- 1. Tela CLT vs PJ -->
+    <div id="telaCltPj" class="hidden bg-white p-5 rounded-xl shadow-md border border-gray-200">
+      <button onclick="mostrarMenu()" class="text-xs font-bold text-blue-800 mb-3 block">← Voltar ao Menu</button>
       <h2 class="text-lg font-bold text-blue-900 mb-1">💼 CLT vs PJ</h2>
       <p class="text-xs text-gray-500 mb-4">Compare a renda líquida aproximada de cada opção.</p>
 
       <div class="space-y-3 text-sm">
         <div>
           <label class="block font-medium text-gray-700 mb-1">Salário Bruto CLT (R$)</label>
-          <input type="number" id="cltSalario" placeholder="Ex: 5000" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+          <input type="number" id="cltSalario" placeholder="Ex: 5000" class="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
         </div>
-
         <div>
           <label class="block font-medium text-gray-700 mb-1">Benefícios CLT / Mês (R$)</label>
-          <span class="text-xs text-gray-400 block mb-1">VR, VA, VT, Plano de Saúde, etc.</span>
-          <input type="number" id="cltBeneficios" placeholder="Ex: 1000" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+          <input type="number" id="cltBeneficios" placeholder="Ex: 1000" class="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
         </div>
-
         <div>
           <label class="block font-medium text-gray-700 mb-1">Faturamento PJ Mensal (R$)</label>
-          <input type="number" id="pjFaturamento" placeholder="Ex: 8000" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+          <input type="number" id="pjFaturamento" placeholder="Ex: 8000" class="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
         </div>
-
-        <button onclick="calcularSimulacao()" class="w-full bg-blue-900 text-white font-bold py-2.5 rounded-lg hover:bg-blue-800 transition">
-          Calcular Comparativo
-        </button>
+        <button onclick="calcularCltPj()" class="w-full bg-blue-900 text-white font-bold py-2.5 rounded-lg hover:bg-blue-800 transition">Calcular</button>
       </div>
 
-      <!-- Área de Resultados -->
-      <div id="resultado" class="hidden mt-5 p-4 rounded-lg border text-sm space-y-2">
-        <h3 class="font-bold text-gray-800 border-b pb-1">Resultado Estimado:</h3>
-        
-        <div class="flex justify-between">
-          <span>Líquido Real CLT (+ Benefícios):</span>
-          <span id="resClt" class="font-semibold text-gray-800">R$ 0,00</span>
-        </div>
+      <div id="resCltPjBox" class="hidden mt-4 p-4 rounded-lg border text-sm space-y-2">
+        <div class="flex justify-between"><span>Líquido CLT (+Benefícios):</span><span id="resCltVal" class="font-bold">R$ 0,00</span></div>
+        <div class="flex justify-between"><span>Líquido PJ (-6% Simples):</span><span id="resPjVal" class="font-bold">R$ 0,00</span></div>
+        <div id="veredictoCltPj" class="mt-2 p-2 text-center rounded font-bold text-xs"></div>
+      </div>
+    </div>
 
-        <div class="flex justify-between">
-          <span>Líquido Real PJ (Simples - ~6%):</span>
-          <span id="resPj" class="font-semibold text-gray-800">R$ 0,00</span>
-        </div>
+    <!-- 2. Tela Combustível -->
+    <div id="telaCombustivel" class="hidden bg-white p-5 rounded-xl shadow-md border border-gray-200">
+      <button onclick="mostrarMenu()" class="text-xs font-bold text-blue-800 mb-3 block">← Voltar ao Menu</button>
+      <h2 class="text-lg font-bold text-blue-900 mb-1">⛽ Álcool ou Gasolina?</h2>
+      <p class="text-xs text-gray-500 mb-4">Descubra o combustível mais vantajoso no posto.</p>
 
-        <div id="veredicto" class="mt-3 p-2 text-center rounded font-bold text-xs"></div>
+      <div class="space-y-3 text-sm">
+        <div>
+          <label class="block font-medium text-gray-700 mb-1">Preço do Álcool (R$)</label>
+          <input type="number" step="0.01" id="precoAlcool" placeholder="Ex: 3.89" class="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block font-medium text-gray-700 mb-1">Preço da Gasolina (R$)</label>
+          <input type="number" step="0.01" id="precoGasolina" placeholder="Ex: 5.59" class="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <button onclick="calcularCombustivel()" class="w-full bg-blue-900 text-white font-bold py-2.5 rounded-lg hover:bg-blue-800 transition">Comparar</button>
+      </div>
+
+      <div id="resCombBox" class="hidden mt-4 p-3 text-center rounded-lg font-bold text-xs"></div>
+    </div>
+
+    <!-- 3. Tela Juros Compostos -->
+    <div id="telaJuros" class="hidden bg-white p-5 rounded-xl shadow-md border border-gray-200">
+      <button onclick="mostrarMenu()" class="text-xs font-bold text-blue-800 mb-3 block">← Voltar ao Menu</button>
+      <h2 class="text-lg font-bold text-blue-900 mb-1">📈 Juros Compostos</h2>
+      <p class="text-xs text-gray-500 mb-4">Simule a evolução do seu patrimônio.</p>
+
+      <div class="space-y-3 text-sm">
+        <div>
+          <label class="block font-medium text-gray-700 mb-1">Aporte Inicial (R$)</label>
+          <input type="number" id="jurosInicial" placeholder="Ex: 1000" class="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block font-medium text-gray-700 mb-1">Aporte Mensal (R$)</label>
+          <input type="number" id="jurosMensal" placeholder="Ex: 300" class="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block font-medium text-gray-700 mb-1">Taxa de Juros Anual (%)</label>
+          <input type="number" step="0.1" id="jurosTaxa" placeholder="Ex: 10" class="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div>
+          <label class="block font-medium text-gray-700 mb-1">Anos de Investimento</label>
+          <input type="number" id="jurosAnos" placeholder="Ex: 5" class="w-full p-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <button onclick="calcularJuros()" class="w-full bg-blue-900 text-white font-bold py-2.5 rounded-lg hover:bg-blue-800 transition">Simular Rendimento</button>
+      </div>
+
+      <div id="resJurosBox" class="hidden mt-4 p-4 rounded-lg border text-sm space-y-2">
+        <div class="flex justify-between"><span>Total Investido:</span><span id="resInvestido" class="font-bold">R$ 0,00</span></div>
+        <div class="flex justify-between"><span>Total em Juros:</span><span id="resJurosGanhos" class="font-bold text-green-600">R$ 0,00</span></div>
+        <div class="flex justify-between border-t pt-1"><span class="font-bold">Montante Final:</span><span id="resMontante" class="font-bold text-blue-900">R$ 0,00</span></div>
       </div>
     </div>
 
@@ -70,35 +128,92 @@
   </footer>
 
   <script>
-    function calcularSimulacao() {
+    function fecharTodasTelas() {
+      document.getElementById('menuPrincipal').classList.add('hidden');
+      document.getElementById('telaCltPj').classList.add('hidden');
+      document.getElementById('telaCombustivel').classList.add('hidden');
+      document.getElementById('telaJuros').classList.add('hidden');
+    }
+
+    function mostrarMenu() {
+      fecharTodasTelas();
+      document.getElementById('menuPrincipal').classList.remove('hidden');
+    }
+
+    function abrirTela(idTela) {
+      fecharTodasTelas();
+      document.getElementById(idTela).classList.remove('hidden');
+    }
+
+    // Lógica CLT vs PJ
+    function calcularCltPj() {
       const clt = parseFloat(document.getElementById('cltSalario').value) || 0;
       const beneficios = parseFloat(document.getElementById('cltBeneficios').value) || 0;
       const pj = parseFloat(document.getElementById('pjFaturamento').value) || 0;
 
-      if(clt <= 0 && pj <= 0) {
-        alert("Por favor, preencha pelo menos um valor de salário ou faturamento.");
-        return;
-      }
-
-      // Estimativa média de desconto CLT (INSS + IRRF ~ 15%)
       const cltLiquido = (clt * 0.85) + beneficios;
-
-      // Estimativa imposto Simples Nacional PJ (~ 6%)
       const pjLiquido = pj * 0.94;
 
-      document.getElementById('resClt').innerText = 'R$ ' + cltLiquido.toFixed(2);
-      document.getElementById('resPj').innerText = 'R$ ' + pjLiquido.toFixed(2);
+      document.getElementById('resCltVal').innerText = 'R$ ' + cltLiquido.toFixed(2);
+      document.getElementById('resPjVal').innerText = 'R$ ' + pjLiquido.toFixed(2);
 
-      const veredictoEl = document.getElementById('veredicto');
+      const veredicto = document.getElementById('veredictoCltPj');
       if (pjLiquido > cltLiquido) {
-        veredictoEl.className = "mt-3 p-2 text-center rounded font-bold text-xs bg-green-100 text-green-800";
-        veredictoEl.innerText = "A opção PJ traz maior ganho financeiro mensal!";
+        veredicto.className = "mt-2 p-2 text-center rounded font-bold text-xs bg-green-100 text-green-800";
+        veredicto.innerText = "A opção PJ traz maior ganho financeiro mensal!";
       } else {
-        veredictoEl.className = "mt-3 p-2 text-center rounded font-bold text-xs bg-blue-100 text-blue-800";
-        veredictoEl.innerText = "A opção CLT (+ Benefícios) está mais vantajosa!";
+        veredicto.className = "mt-2 p-2 text-center rounded font-bold text-xs bg-blue-100 text-blue-800";
+        veredicto.innerText = "A opção CLT (+ Benefícios) está mais vantajosa!";
       }
 
-      document.getElementById('resultado').classList.remove('hidden');
+      document.getElementById('resCltPjBox').classList.remove('hidden');
+    }
+
+    // Lógica Combustível
+    function calcularCombustivel() {
+      const alc = parseFloat(document.getElementById('precoAlcool').value) || 0;
+      const gas = parseFloat(document.getElementById('precoGasolina').value) || 0;
+
+      if(alc <= 0 || gas <= 0) return alert("Preencha ambos os valores.");
+
+      const box = document.getElementById('resCombBox');
+      const razao = alc / gas;
+
+      if(razao <= 0.70) {
+        box.className = "mt-4 p-3 text-center rounded-lg font-bold text-xs bg-green-100 text-green-800";
+        box.innerText = "Abasteça com ÁLCOOL! (Proporção: " + (razao * 100).toFixed(0) + "%)";
+      } else {
+        box.className = "mt-4 p-3 text-center rounded-lg font-bold text-xs bg-blue-100 text-blue-800";
+        box.innerText = "Abasteça com GASOLINA! (Proporção: " + (razao * 100).toFixed(0) + "%)";
+      }
+      box.classList.remove('hidden');
+    }
+
+    // Lógica Juros Compostos
+    function calcularJuros() {
+      const init = parseFloat(document.getElementById('jurosInicial').value) || 0;
+      const mens = parseFloat(document.getElementById('jurosMensal').value) || 0;
+      const taxaAnual = parseFloat(document.getElementById('jurosTaxa').value) || 0;
+      const anos = parseInt(document.getElementById('jurosAnos').value) || 0;
+
+      const meses = anos * 12;
+      const taxaMensal = Math.pow(1 + (taxaAnual / 100), 1/12) - 1;
+
+      let montante = init;
+      let investido = init;
+
+      for(let i = 0; i < meses; i++) {
+        montante = (montante + mens) * (1 + taxaMensal);
+        investido += mens;
+      }
+
+      const juros = montante - investido;
+
+      document.getElementById('resInvestido').innerText = 'R$ ' + investido.toFixed(2);
+      document.getElementById('resJurosGanhos').innerText = 'R$ ' + juros.toFixed(2);
+      document.getElementById('resMontante').innerText = 'R$ ' + montante.toFixed(2);
+
+      document.getElementById('resJurosBox').classList.remove('hidden');
     }
   </script>
 </body>
