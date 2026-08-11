@@ -3,326 +3,457 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simulador de Juros Compostos</title>
+  <title>Guia Financeiro Digital - Suíte de Simuladores</title>
   
-  <!-- Chart.js para o gráfico de evolução -->
+  <!-- Chart.js para gráficos -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    /* Estilos Gerais */
+    :root {
+      --bg-main: #f0f2f5;
+      --card-bg: #ffffff;
+      --primary: #10b981;
+      --primary-hover: #059669;
+      --text-dark: #1f2937;
+      --text-muted: #6b7280;
+      --border-color: #e5e7eb;
+      --header-bg: #1e293b;
+    }
+
     * {
       box-sizing: border-box;
-      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
     body {
-      background-color: #f4f7f6;
-      color: #333;
-      margin: 0;
+      background-color: var(--bg-main);
+      color: var(--text-dark);
       padding: 20px;
+      display: flex;
+      justify-content: center;
     }
 
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      background: #ffffff;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    .app-container {
+      width: 100%;
+      max-width: 850px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
     }
 
-    h1, h2, h3 {
-      color: #2c3e50;
-      margin-top: 0;
+    /* Cabeçalho / Menu */
+    .app-header {
+      background: var(--header-bg);
+      color: white;
+      padding: 20px 24px;
+      border-radius: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
+    .app-header h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .app-header p {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+
+    .menu-btn {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Card Principal */
+    .card-panel {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      border: 1px solid var(--border-color);
+    }
+
+    .panel-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 20px;
+    }
+
+    /* Formulário e Grids */
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
       margin-bottom: 20px;
     }
 
     .form-group {
       display: flex;
       flex-direction: column;
+      gap: 6px;
     }
 
-    label {
-      font-size: 0.9rem;
-      margin-bottom: 5px;
-      font-weight: bold;
-      color: #555;
+    .form-group label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
     }
 
-    input, select {
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 1rem;
+    .input-control {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      background: #f9fafb;
+      outline: none;
+      transition: border 0.2s;
     }
 
-    .input-group {
+    .input-control:focus {
+      border-color: var(--primary);
+      background: #fff;
+    }
+
+    .input-group-row {
       display: flex;
-      gap: 5px;
+      gap: 6px;
     }
 
-    .input-group input {
+    .input-group-row input {
       flex: 1;
     }
 
-    button {
-      background-color: #27ae60;
+    .input-group-row select {
+      width: 80px;
+      padding: 10px 6px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: #f9fafb;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    /* Opções Avançadas (IR/Inflação) */
+    .advanced-box {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-dark);
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .checkbox-label input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+    }
+
+    /* Botões */
+    .btn-primary {
+      width: 100%;
+      background: var(--primary);
       color: white;
       border: none;
-      padding: 12px 20px;
+      padding: 14px;
+      border-radius: 10px;
       font-size: 1rem;
-      font-weight: bold;
-      border-radius: 6px;
+      font-weight: 700;
       cursor: pointer;
-      width: 100%;
-      transition: background 0.3s;
+      transition: background 0.2s;
     }
 
-    button:hover {
-      background-color: #219150;
-    }
-
-    /* Resultados */
-    .results-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 15px;
-      margin-top: 20px;
-    }
-
-    .card {
-      background: #f8f9fa;
-      padding: 15px;
-      border-radius: 8px;
-      border-left: 5px solid #27ae60;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-    }
-
-    .card.highlight {
-      border-left-color: #2980b9;
-    }
-
-    .card small {
-      color: #7f8c8d;
-      font-size: 0.85rem;
-      display: block;
-      margin-bottom: 5px;
-    }
-
-    .card h3 {
-      margin: 0;
-      font-size: 1.3rem;
-    }
-
-    .actions-bar {
-      display: flex;
-      gap: 10px;
-      margin-top: 20px;
+    .btn-primary:hover {
+      background: var(--primary-hover);
     }
 
     .btn-secondary {
-      background-color: #3490dc;
+      background: #e2e8f0;
+      color: #334155;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
     }
 
-    .btn-secondary:hover {
-      background-color: #2779bd;
+    /* Dashboard de Resultados */
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin-top: 20px;
     }
 
-    .chart-container {
-      margin-top: 30px;
+    .res-card {
+      background: #f8fafc;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+
+    .res-card.highlight {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+
+    .res-card small {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .res-card h3 {
+      font-size: 1.15rem;
+      color: var(--text-dark);
+    }
+
+    .res-card.highlight h3 {
+      color: #047857;
+    }
+
+    /* Gráfico */
+    .chart-box {
+      margin-top: 24px;
       position: relative;
-      height: 350px;
-      width: 100%;
+      height: 300px;
     }
 
-    /* 1. ESTILIZAÇÃO PARA IMPRESSÃO/PDF (@media print) */
+    /* Accordion / Tabela */
+    details {
+      margin-top: 20px;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      background: #fff;
+      padding: 12px;
+    }
+
+    summary {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text-dark);
+      cursor: pointer;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-top: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+      padding: 8px 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    /* 1. REGRA PARA IMPRESSÃO / PDF */
     @media print {
       body {
-        background: #ffffff !important;
-        color: #000000 !important;
-        padding: 0;
-      }
-
-      .container {
-        box-shadow: none !important;
-        border: none !important;
-        max-width: 100% !important;
+        background: #fff !important;
         padding: 0 !important;
       }
-
-      /* Esconde botões de ação e campos não relevantes */
-      button, .btn, .actions-bar, details summary {
+      .app-header, button, .menu-btn, details summary {
         display: none !important;
       }
-
-      /* Força a abertura de elementos sanfona na impressão */
-      details {
+      .card-panel {
+        box-shadow: none !important;
         border: none !important;
         padding: 0 !important;
       }
-
+      details {
+        border: none !important;
+      }
       details[open] summary, details summary {
         display: none !important;
       }
-
-      /* Garante que gráficos e cartões fiquem limpos */
-      .card, .results-container, canvas {
-        break-inside: avoid;
-        box-shadow: none !important;
-        border: 1px solid #ccc !important;
-      }
-
-      .chart-container {
-        height: 280px !important;
+      .chart-box {
+        height: 250px !important;
       }
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <h1>Simulador de Juros Compostos</h1>
+  <div class="app-container">
     
-    <div class="form-grid">
-      <div class="form-group">
-        <label for="aporteInicial">Aporte Inicial (R$):</label>
-        <input type="number" id="aporteInicial" value="1000" step="100">
+    <!-- Cabeçalho Integrado do App -->
+    <header class="app-header">
+      <div>
+        <h2>Suíte de Simuladores</h2>
+        <p>Rápidos & Diagnóstico IA</p>
       </div>
+      <button class="menu-btn">Menu</button>
+    </header>
 
-      <div class="form-group">
-        <label for="aporteMensal">Aporte Mensal (R$):</label>
-        <input type="number" id="aporteMensal" value="500" step="50">
-      </div>
+    <!-- Card Principal do Simulador -->
+    <main class="card-panel">
+      <h1 class="panel-title">Simulador de Juros Compostos</h1>
 
-      <div class="form-group">
-        <label for="taxaJuros">Taxa de Juros (%):</label>
-        <div class="input-group">
-          <input type="number" id="taxaJuros" value="10" step="0.1">
-          <select id="periodoTaxa">
-            <option value="ano" selected>a.a.</option>
-            <option value="mes">a.m.</option>
-          </select>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="aporteInicial">Aporte Inicial (R$):</label>
+          <input type="number" id="aporteInicial" class="input-control" value="1000">
+        </div>
+
+        <div class="form-group">
+          <label for="aporteMensal">Aporte Mensal (R$):</label>
+          <input type="number" id="aporteMensal" class="input-control" value="500">
+        </div>
+
+        <div class="form-group">
+          <label for="taxaJuros">Taxa de Juros (%):</label>
+          <div class="input-group-row">
+            <input type="number" id="taxaJuros" class="input-control" value="10" step="0.1">
+            <select id="periodoTaxa">
+              <option value="ano" selected>a.a.</option>
+              <option value="mes">a.m.</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="tempo">Período:</label>
+          <div class="input-group-row">
+            <input type="number" id="tempo" class="input-control" value="10">
+            <select id="unidadeTempo">
+              <option value="anos" selected>anos</option>
+              <option value="meses">meses</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <div class="form-group">
-        <label for="tempo">Período:</label>
-        <div class="input-group">
-          <input type="number" id="tempo" value="10" min="1">
-          <select id="unidadeTempo">
-            <option value="anos" selected>anos</option>
-            <option value="meses">meses</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <!-- 2. Opções Avançadas: Inflação e IR -->
-    <div class="advanced-options" style="margin-top: 15px; background: #f8f9fa; padding: 15px; border-radius: 8px;">
-      <div class="form-grid" style="margin-bottom: 0;">
+      <!-- Opções Avançadas -->
+      <div class="advanced-box">
         <div class="form-group">
           <label for="inflacao">Inflação Estimada (% a.a.) [Opcional]:</label>
-          <input type="number" id="inflacao" step="0.1" placeholder="Ex: 4.5">
+          <input type="number" id="inflacao" class="input-control" placeholder="Ex: 4.5" step="0.1">
         </div>
+        <label class="checkbox-label">
+          <input type="checkbox" id="descontarIR" checked>
+          Descontar Imposto de Renda (Tabela Regressiva)
+        </label>
+      </div>
 
-        <div class="form-group" style="justify-content: center;">
-          <label for="descontarIR" style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
-            <input type="checkbox" id="descontarIR" checked style="width: 18px; height: 18px;">
-            Descontar Imposto de Renda (Tabela Regressiva)
-          </label>
+      <button class="btn-primary" onclick="simular()">Simular Investimento</button>
+
+      <!-- Dashboard de Resultados Brutos -->
+      <div class="results-grid">
+        <div class="res-card">
+          <small>Total Investido</small>
+          <h3 id="resTotalInvestido">R$ 0,00</h3>
+        </div>
+        <div class="res-card">
+          <small>Total em Juros (Bruto)</small>
+          <h3 id="resTotalJuros">R$ 0,00</h3>
+        </div>
+        <div class="res-card highlight">
+          <small>Valor Total Bruto</small>
+          <h3 id="resValorBruto">R$ 0,00</h3>
         </div>
       </div>
-    </div>
 
-    <div style="margin-top: 20px;">
-      <button onclick="simular()">Simular Investimento</button>
-    </div>
+      <!-- Dashboard de Resultados Líquidos e Reais -->
+      <div id="resultadosLiquidos" class="results-grid">
+        <div class="res-card highlight">
+          <small>Valor Líquido (Desc. IR)</small>
+          <h3 id="resValorLiquido">R$ 0,00</h3>
+        </div>
+        <div class="res-card">
+          <small>Ganho Real (Desc. Inflação)</small>
+          <h3 id="resValorReal">R$ 0,00</h3>
+        </div>
+      </div>
 
-    <!-- Resultados Brutos -->
-    <div id="resultadosBrutos" class="results-grid">
-      <div class="card">
-        <small>Total Investido</small>
-        <h3 id="resTotalInvestido">R$ 0,00</h3>
+      <!-- Gráfico -->
+      <div class="chart-box">
+        <canvas id="graficoEvolucao"></canvas>
       </div>
-      <div class="card">
-        <small>Total em Juros (Bruto)</small>
-        <h3 id="resTotalJuros">R$ 0,00</h3>
-      </div>
-      <div class="card highlight">
-        <small>Valor Total Bruto</small>
-        <h3 id="resValorBruto">R$ 0,00</h3>
-      </div>
-    </div>
 
-    <!-- Destaques dos Resultados Adicionais (Líquido e Ganho Real) -->
-    <div id="resultadosLiquidos" class="results-grid" style="display:none;">
-      <div class="card highlight">
-        <small>Valor Líquido (Desc. IR)</small>
-        <h3 id="resValorLiquido">R$ 0,00</h3>
-      </div>
-      <div class="card">
-        <small>Ganho Real (Desc. Inflação)</small>
-        <h3 id="resValorReal">R$ 0,00</h3>
-      </div>
-    </div>
+      <!-- Tabela Mês a Mês Expansível -->
+      <details>
+        <summary>📊 Ver Evolução Detalhada (Mês a Mês)</summary>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Mês</th>
+                <th>Total Investido</th>
+                <th>Juros Acumulados</th>
+                <th>Total Acumulado</th>
+              </tr>
+            </thead>
+            <tbody id="corpoTabela"></tbody>
+          </table>
+        </div>
+      </details>
 
-    <!-- Gráfico de Evolução -->
-    <div class="chart-container">
-      <canvas id="graficoEvolucao"></canvas>
-    </div>
-
-    <!-- 2. Sanfona / Accordion da Tabela Detalhada -->
-    <details style="margin-top: 25px; border: 1px solid #ddd; padding: 12px; border-radius: 8px; background: #fff;">
-      <summary style="cursor: pointer; font-weight: bold; color: #2c3e50;">📊 Ver Evolução Detalhada (Mês a Mês)</summary>
-      <div style="overflow-x: auto; margin-top: 15px;">
-        <table id="tabelaEvolucao" style="width: 100%; border-collapse: collapse; text-align: left;">
-          <thead>
-            <tr style="border-bottom: 2px solid #ccc; background-color: #f1f1f1;">
-              <th style="padding: 10px;">Mês</th>
-              <th style="padding: 10px;">Total Investido</th>
-              <th style="padding: 10px;">Juros Acumulados</th>
-              <th style="padding: 10px;">Total Acumulado</th>
-            </tr>
-          </thead>
-          <tbody id="corpoTabela">
-            <!-- Preenchido via JavaScript -->
-          </tbody>
-        </table>
+      <!-- Ações (PDF) -->
+      <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
+        <button class="btn-secondary" onclick="window.print()">🖨️ Salvar em PDF / Imprimir</button>
       </div>
-    </details>
-
-    <!-- Botão para Salvar PDF -->
-    <div class="actions-bar">
-      <button class="btn-secondary" onclick="window.print()">🖨️ Salvar em PDF / Imprimir</button>
-    </div>
+    </main>
   </div>
 
   <script>
     let meuGrafico = null;
 
-    // 3. Lógica JavaScript Atualizada
     function simular() {
       const aporteInicial = parseFloat(document.getElementById('aporteInicial').value) || 0;
       const aporteMensal = parseFloat(document.getElementById('aporteMensal').value) || 0;
-      let taxaJuros = parseFloat(document.getElementById('taxaJuros').value) || 0;
+      const taxaJuros = parseFloat(document.getElementById('taxaJuros').value) || 0;
       const periodoTaxa = document.getElementById('periodoTaxa').value;
-      let tempo = parseInt(document.getElementById('tempo').value) || 0;
+      const tempo = parseInt(document.getElementById('tempo').value) || 0;
       const unidadeTempo = document.getElementById('unidadeTempo').value;
       
-      // Opções Avançadas
       const inflacaoAnual = parseFloat(document.getElementById('inflacao').value) || 0;
       const aplicarIR = document.getElementById('descontarIR').checked;
 
-      // Converter tempo total para meses
       const totalMeses = unidadeTempo === 'anos' ? tempo * 12 : tempo;
 
-      // Converter taxa de juros anual para mensal (se necessário)
       let taxaMensal = periodoTaxa === 'ano' 
         ? Math.pow(1 + taxaJuros / 100, 1 / 12) - 1 
         : taxaJuros / 100;
@@ -335,11 +466,6 @@
       const dadosInvestido = [];
       const dadosTotal = [];
 
-      // Limpa tabela anterior
-      const corpoTabela = document.getElementById('corpoTabela');
-      corpoTabela.innerHTML = '';
-
-      // Loop mês a mês
       for (let mes = 1; mes <= totalMeses; mes++) {
         const jurosDoMes = totalAcumulado * taxaMensal;
         totalAcumulado += jurosDoMes + aporteMensal;
@@ -347,55 +473,50 @@
 
         const jurosAcumulados = totalAcumulado - totalInvestido;
 
-        // Dados para o Gráfico
         labelsMeses.push(`Mês ${mes}`);
         dadosInvestido.push(totalInvestido.toFixed(2));
         dadosTotal.push(totalAcumulado.toFixed(2));
 
-        // Adiciona linha na tabela
         corpoTabelaHTML += `
-          <tr style="border-bottom: 1px solid #eee;">
-            <td style="padding: 8px;">Mês ${mes}</td>
-            <td style="padding: 8px;">R$ ${totalInvestido.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-            <td style="padding: 8px;">R$ ${jurosAcumulados.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-            <td style="padding: 8px;">R$ ${totalAcumulado.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+          <tr>
+            <td>Mês ${mes}</td>
+            <td>R$ ${totalInvestido.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+            <td>R$ ${jurosAcumulados.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+            <td>R$ ${totalAcumulado.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
           </tr>
         `;
       }
 
-      corpoTabela.innerHTML = corpoTabelaHTML;
+      document.getElementById('corpoTabela').innerHTML = corpoTabelaHTML;
 
-      // --- CÁLCULO DO IMPOSTO DE RENDA (Tabela Regressiva Renda Fixa) ---
+      // IR Regressivo
       const totalJurosBruto = totalAcumulado - totalInvestido;
       let aliquotaIR = 0;
 
       if (aplicarIR) {
         const dias = totalMeses * 30;
-        if (dias <= 180) aliquotaIR = 0.225;        // 22,5%
-        else if (dias <= 360) aliquotaIR = 0.20;    // 20,0%
-        else if (dias <= 720) aliquotaIR = 0.175;   // 17,5%
-        else aliquotaIR = 0.15;                     // 15,0%
+        if (dias <= 180) aliquotaIR = 0.225;
+        else if (dias <= 360) aliquotaIR = 0.20;
+        else if (dias <= 720) aliquotaIR = 0.175;
+        else aliquotaIR = 0.15;
       }
 
       const impostoDevido = totalJurosBruto * aliquotaIR;
       const valorLiquido = totalAcumulado - impostoDevido;
 
-      // --- CÁLCULO DA INFLAÇÃO E GANHO REAL ---
+      // Inflação
       const taxaInflacaoMensal = Math.pow(1 + inflacaoAnual / 100, 1 / 12) - 1;
       const fatorInflacao = Math.pow(1 + taxaInflacaoMensal, totalMeses);
       const valorComPoderDeCompraAtual = valorLiquido / fatorInflacao;
 
-      // Exibir Resultados Brutos
-      document.getElementById('resTotalInvestido').innerText = `R$ ${totalInvestido.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-      document.getElementById('resTotalJuros').innerText = `R$ ${totalJurosBruto.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-      document.getElementById('resValorBruto').innerText = `R$ ${totalAcumulado.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+      // Atualização de Valores
+      document.getElementById('resTotalInvestido').innerText = `R$ ${totalInvestido.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+      document.getElementById('resTotalJuros').innerText = `R$ ${totalJurosBruto.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+      document.getElementById('resValorBruto').innerText = `R$ ${totalAcumulado.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
 
-      // Exibir Resultados Extras (Líquido e Ganho Real)
-      document.getElementById('resultadosLiquidos').style.display = 'grid';
-      document.getElementById('resValorLiquido').innerText = `R$ ${valorLiquido.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-      document.getElementById('resValorReal').innerText = `R$ ${valorComPoderDeCompraAtual.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+      document.getElementById('resValorLiquido').innerText = `R$ ${valorLiquido.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+      document.getElementById('resValorReal').innerText = `R$ ${valorComPoderDeCompraAtual.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
 
-      // Atualizar Gráfico
       atualizarGrafico(labelsMeses, dadosInvestido, dadosTotal);
     }
 
@@ -414,31 +535,32 @@
             {
               label: 'Total Acumulado',
               data: dadosTotal,
-              borderColor: '#27ae60',
-              backgroundColor: 'rgba(39, 174, 96, 0.1)',
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
               fill: true,
-              tension: 0.1
+              tension: 0.2
             },
             {
               label: 'Total Investido',
               data: dadosInvestido,
-              borderColor: '#2980b9',
+              borderColor: '#64748b',
               backgroundColor: 'transparent',
-              borderDash: [5, 5],
-              tension: 0.1
+              borderDash: [4, 4],
+              tension: 0.2
             }
           ]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top' }
+          },
           scales: {
             y: {
               beginAtZero: true,
               ticks: {
-                callback: function(value) {
-                  return 'R$ ' + Number(value).toLocaleString('pt-BR');
-                }
+                callback: (v) => 'R$ ' + Number(v).toLocaleString('pt-BR')
               }
             }
           }
@@ -446,7 +568,6 @@
       });
     }
 
-    // Executa simulação inicial ao carregar a página
     window.onload = simular;
   </script>
 </body>
