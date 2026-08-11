@@ -530,3 +530,456 @@
 
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulador de Juros Compostos</title>
+  
+  <!-- Chart.js para o gráfico de evolução -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* Estilos Gerais */
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f4f7f6;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    h1, h2, h3 {
+      color: #2c3e50;
+      margin-top: 0;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #555;
+    }
+
+    input, select {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 5px;
+    }
+
+    .input-group input {
+      flex: 1;
+    }
+
+    button {
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      font-size: 1rem;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #219150;
+    }
+
+    /* Resultados */
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      border-left: 5px solid #27ae60;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .card.highlight {
+      border-left-color: #2980b9;
+    }
+
+    .card small {
+      color: #7f8c8d;
+      font-size: 0.85rem;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 1.3rem;
+    }
+
+    .actions-bar {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn-secondary {
+      background-color: #3490dc;
+    }
+
+    .btn-secondary:hover {
+      background-color: #2779bd;
+    }
+
+    .chart-container {
+      margin-top: 30px;
+      position: relative;
+      height: 350px;
+      width: 100%;
+    }
+
+    /* 1. ESTILIZAÇÃO PARA IMPRESSÃO/PDF (@media print) */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0;
+      }
+
+      .container {
+        box-shadow: none !important;
+        border: none !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+      }
+
+      /* Esconde botões de ação e campos não relevantes */
+      button, .btn, .actions-bar, details summary {
+        display: none !important;
+      }
+
+      /* Força a abertura de elementos sanfona na impressão */
+      details {
+        border: none !important;
+        padding: 0 !important;
+      }
+
+      details[open] summary, details summary {
+        display: none !important;
+      }
+
+      /* Garante que gráficos e cartões fiquem limpos */
+      .card, .results-container, canvas {
+        break-inside: avoid;
+        box-shadow: none !important;
+        border: 1px solid #ccc !important;
+      }
+
+      .chart-container {
+        height: 280px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Simulador de Juros Compostos</h1>
+    
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="aporteInicial">Aporte Inicial (R$):</label>
+        <input type="number" id="aporteInicial" value="1000" step="100">
+      </div>
+
+      <div class="form-group">
+        <label for="aporteMensal">Aporte Mensal (R$):</label>
+        <input type="number" id="aporteMensal" value="500" step="50">
+      </div>
+
+      <div class="form-group">
+        <label for="taxaJuros">Taxa de Juros (%):</label>
+        <div class="input-group">
+          <input type="number" id="taxaJuros" value="10" step="0.1">
+          <select id="periodoTaxa">
+            <option value="ano" selected>a.a.</option>
+            <option value="mes">a.m.</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="tempo">Período:</label>
+        <div class="input-group">
+          <input type="number" id="tempo" value="10" min="1">
+          <select id="unidadeTempo">
+            <option value="anos" selected>anos</option>
+            <option value="meses">meses</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Opções Avançadas: Inflação e IR -->
+    <div class="advanced-options" style="margin-top: 15px; background: #f8f9fa; padding: 15px; border-radius: 8px;">
+      <div class="form-grid" style="margin-bottom: 0;">
+        <div class="form-group">
+          <label for="inflacao">Inflação Estimada (% a.a.) [Opcional]:</label>
+          <input type="number" id="inflacao" step="0.1" placeholder="Ex: 4.5">
+        </div>
+
+        <div class="form-group" style="justify-content: center;">
+          <label for="descontarIR" style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="descontarIR" checked style="width: 18px; height: 18px;">
+            Descontar Imposto de Renda (Tabela Regressiva)
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+      <button onclick="simular()">Simular Investimento</button>
+    </div>
+
+    <!-- Resultados Brutos -->
+    <div id="resultadosBrutos" class="results-grid">
+      <div class="card">
+        <small>Total Investido</small>
+        <h3 id="resTotalInvestido">R$ 0,00</h3>
+      </div>
+      <div class="card">
+        <small>Total em Juros (Bruto)</small>
+        <h3 id="resTotalJuros">R$ 0,00</h3>
+      </div>
+      <div class="card highlight">
+        <small>Valor Total Bruto</small>
+        <h3 id="resValorBruto">R$ 0,00</h3>
+      </div>
+    </div>
+
+    <!-- Destaques dos Resultados Adicionais (Líquido e Ganho Real) -->
+    <div id="resultadosLiquidos" class="results-grid" style="display:none;">
+      <div class="card highlight">
+        <small>Valor Líquido (Desc. IR)</small>
+        <h3 id="resValorLiquido">R$ 0,00</h3>
+      </div>
+      <div class="card">
+        <small>Ganho Real (Desc. Inflação)</small>
+        <h3 id="resValorReal">R$ 0,00</h3>
+      </div>
+    </div>
+
+    <!-- Gráfico de Evolução -->
+    <div class="chart-container">
+      <canvas id="graficoEvolucao"></canvas>
+    </div>
+
+    <!-- 2. Sanfona / Accordion da Tabela Detalhada -->
+    <details style="margin-top: 25px; border: 1px solid #ddd; padding: 12px; border-radius: 8px; background: #fff;">
+      <summary style="cursor: pointer; font-weight: bold; color: #2c3e50;">📊 Ver Evolução Detalhada (Mês a Mês)</summary>
+      <div style="overflow-x: auto; margin-top: 15px;">
+        <table id="tabelaEvolucao" style="width: 100%; border-collapse: collapse; text-align: left;">
+          <thead>
+            <tr style="border-bottom: 2px solid #ccc; background-color: #f1f1f1;">
+              <th style="padding: 10px;">Mês</th>
+              <th style="padding: 10px;">Total Investido</th>
+              <th style="padding: 10px;">Juros Acumulados</th>
+              <th style="padding: 10px;">Total Acumulado</th>
+            </tr>
+          </thead>
+          <tbody id="corpoTabela">
+            <!-- Preenchido via JavaScript -->
+          </tbody>
+        </table>
+      </div>
+    </details>
+
+    <!-- Botão para Salvar PDF -->
+    <div class="actions-bar">
+      <button class="btn-secondary" onclick="window.print()">🖨️ Salvar em PDF / Imprimir</button>
+    </div>
+  </div>
+
+  <script>
+    let meuGrafico = null;
+
+    // 3. Lógica JavaScript Atualizada
+    function simular() {
+      const aporteInicial = parseFloat(document.getElementById('aporteInicial').value) || 0;
+      const aporteMensal = parseFloat(document.getElementById('aporteMensal').value) || 0;
+      let taxaJuros = parseFloat(document.getElementById('taxaJuros').value) || 0;
+      const periodoTaxa = document.getElementById('periodoTaxa').value;
+      let tempo = parseInt(document.getElementById('tempo').value) || 0;
+      const unidadeTempo = document.getElementById('unidadeTempo').value;
+      
+      // Opções Avançadas
+      const inflacaoAnual = parseFloat(document.getElementById('inflacao').value) || 0;
+      const aplicarIR = document.getElementById('descontarIR').checked;
+
+      // Converter tempo total para meses
+      const totalMeses = unidadeTempo === 'anos' ? tempo * 12 : tempo;
+
+      // Converter taxa de juros anual para mensal (se necessário)
+      let taxaMensal = periodoTaxa === 'ano' 
+        ? Math.pow(1 + taxaJuros / 100, 1 / 12) - 1 
+        : taxaJuros / 100;
+
+      let totalAcumulado = aporteInicial;
+      let totalInvestido = aporteInicial;
+      let corpoTabelaHTML = '';
+
+      const labelsMeses = [];
+      const dadosInvestido = [];
+      const dadosTotal = [];
+
+      // Limpa tabela anterior
+      const corpoTabela = document.getElementById('corpoTabela');
+      corpoTabela.innerHTML = '';
+
+      // Loop mês a mês
+      for (let mes = 1; mes <= totalMeses; mes++) {
+        const jurosDoMes = totalAcumulado * taxaMensal;
+        totalAcumulado += jurosDoMes + aporteMensal;
+        totalInvestido += aporteMensal;
+
+        const jurosAcumulados = totalAcumulado - totalInvestido;
+
+        // Dados para o Gráfico
+        labelsMeses.push(`Mês ${mes}`);
+        dadosInvestido.push(totalInvestido.toFixed(2));
+        dadosTotal.push(totalAcumulado.toFixed(2));
+
+        // Adiciona linha na tabela
+        corpoTabelaHTML += `
+          <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 8px;">Mês ${mes}</td>
+            <td style="padding: 8px;">R$ ${totalInvestido.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+            <td style="padding: 8px;">R$ ${jurosAcumulados.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+            <td style="padding: 8px;">R$ ${totalAcumulado.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+          </tr>
+        `;
+      }
+
+      corpoTabela.innerHTML = corpoTabelaHTML;
+
+      // --- CÁLCULO DO IMPOSTO DE RENDA (Tabela Regressiva Renda Fixa) ---
+      const totalJurosBruto = totalAcumulado - totalInvestido;
+      let aliquotaIR = 0;
+
+      if (aplicarIR) {
+        const dias = totalMeses * 30;
+        if (dias <= 180) aliquotaIR = 0.225;        // 22,5%
+        else if (dias <= 360) aliquotaIR = 0.20;    // 20,0%
+        else if (dias <= 720) aliquotaIR = 0.175;   // 17,5%
+        else aliquotaIR = 0.15;                     // 15,0%
+      }
+
+      const impostoDevido = totalJurosBruto * aliquotaIR;
+      const valorLiquido = totalAcumulado - impostoDevido;
+
+      // --- CÁLCULO DA INFLAÇÃO E GANHO REAL ---
+      const taxaInflacaoMensal = Math.pow(1 + inflacaoAnual / 100, 1 / 12) - 1;
+      const fatorInflacao = Math.pow(1 + taxaInflacaoMensal, totalMeses);
+      const valorComPoderDeCompraAtual = valorLiquido / fatorInflacao;
+
+      // Exibir Resultados Brutos
+      document.getElementById('resTotalInvestido').innerText = `R$ ${totalInvestido.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+      document.getElementById('resTotalJuros').innerText = `R$ ${totalJurosBruto.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+      document.getElementById('resValorBruto').innerText = `R$ ${totalAcumulado.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+      // Exibir Resultados Extras (Líquido e Ganho Real)
+      document.getElementById('resultadosLiquidos').style.display = 'grid';
+      document.getElementById('resValorLiquido').innerText = `R$ ${valorLiquido.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+      document.getElementById('resValorReal').innerText = `R$ ${valorComPoderDeCompraAtual.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+
+      // Atualizar Gráfico
+      atualizarGrafico(labelsMeses, dadosInvestido, dadosTotal);
+    }
+
+    function atualizarGrafico(labels, dadosInvestido, dadosTotal) {
+      const ctx = document.getElementById('graficoEvolucao').getContext('2d');
+
+      if (meuGrafico) {
+        meuGrafico.destroy();
+      }
+
+      meuGrafico = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Total Acumulado',
+              data: dadosTotal,
+              borderColor: '#27ae60',
+              backgroundColor: 'rgba(39, 174, 96, 0.1)',
+              fill: true,
+              tension: 0.1
+            },
+            {
+              label: 'Total Investido',
+              data: dadosInvestido,
+              borderColor: '#2980b9',
+              backgroundColor: 'transparent',
+              borderDash: [5, 5],
+              tension: 0.1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return 'R$ ' + Number(value).toLocaleString('pt-BR');
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Executa simulação inicial ao carregar a página
+    window.onload = simular;
+  </script>
+</body>
+</html>
