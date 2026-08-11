@@ -95,15 +95,25 @@
 
         .icon { width: 18px; height: 18px; fill: currentColor; display: inline-block; vertical-align: middle; }
 
-        /* Estilo Profissional de Impressão / PDF */
+        /* Otimização Profissional de Impressão / PDF */
         @media print {
-            body { background: white; padding: 0; color: #000; }
-            .app-container { box-shadow: none; max-width: 100%; border: none; border-radius: 0; }
-            header { background: #0f172a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .btn-menu, .btn-back, .action-buttons, .card-menu, .btn-submit, .form-group, .form-row, .accordion-btn { display: none !important; }
-            .accordion-content { display: block !important; max-height: none !important; overflow: visible !important; border: none !important; }
-            .ai-result-box { background: #f8fafc !important; border: 1px solid #cbd5e1 !important; page-break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            canvas { max-height: 250px !important; width: 100% !important; }
+            body { background: white !important; padding: 0 !important; margin: 0 !important; color: #000 !important; }
+            .app-container { box-shadow: none !important; max-width: 100% !important; width: 100% !important; border: none !important; border-radius: 0 !important; margin: 0 !important; }
+            .content { padding: 0 !important; }
+            header { background: #0f172a !important; padding: 12px 20px !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            
+            /* Ocultar elementos desnecessários na impressão */
+            .btn-menu, .btn-back, .action-buttons, .card-menu, .btn-submit, .form-group, .form-row, .accordion-btn, h2, p { display: none !important; }
+            
+            /* Mostrar e formatar apenas a caixa de resultados */
+            .ai-result-box { display: block !important; margin-top: 10px !important; background: #ffffff !important; border: 1px solid #cbd5e1 !important; padding: 15px !important; page-break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .accordion-content { display: block !important; max-height: none !important; overflow: visible !important; border: 1px solid #cbd5e1 !important; margin-top: 15px !important; }
+            
+            /* Ajuste de tamanho do gráfico */
+            canvas { max-height: 180px !important; width: 100% !important; }
+            
+            /* Ajuste da tabela para caber perfeitamente na folha */
+            .table-sim th, .table-sim td { padding: 4px 6px !important; font-size: 0.7rem !important; }
         }
     </style>
 </head>
